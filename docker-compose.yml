@@ -1,0 +1,35 @@
+version: '3.1'
+services:
+    db:
+      image: mysql:5.7.12
+      restart: always
+      ports:
+        - 6603:3306    
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+      volumes:
+        - /var/lib/mysql:/var/lib/mysql
+        - /etc/mysql/conf.d:/etc/mysql/conf.d
+      command: mysqld --init-file='/var/lib/mysql/init.sql'
+      networks: 
+        - production-network
+
+    node1:
+        build:
+            dockerfile: ./docker/node.dockerfile
+            context: .
+        image: lx/node
+        restart: always
+        container_name: application
+        ports:
+          - 3000:3000
+        networks: 
+          - production-network
+        volumes:
+          - .:/clinica-essencial
+        depends_on:
+          - db
+
+networks: 
+    production-network:
+        driver: bridge
