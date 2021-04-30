@@ -1,5 +1,24 @@
-const formatterValue = (value) => {
-  let stringValue = value.toString();
+import moment from 'moment';
+
+const hasOnlyZeros = (valueAsString) => {
+  const regex = /^0+$/;
+  return regex.test(valueAsString);
+};
+
+const toBigNumberAsString = (valueAsString) => {
+  let formatedValue = '';
+  if (valueAsString !== undefined && valueAsString !== null && valueAsString !== '') {
+    if (!hasOnlyZeros(valueAsString)) {
+      formatedValue = `${valueAsString.toString().replace(/^0+/, '').replace(/\D/g, '').trim()}`;
+    } else {
+      formatedValue = `${valueAsString.toString().replace(/\D/g, '').trim()}`;
+    }
+  }
+  return formatedValue;
+};
+
+export const formatterValue = (value) => {
+  let stringValue = toBigNumberAsString(value);
   const separators = { decimal: ',', thousand: '.' };
 
   if (stringValue.length === 0) {
@@ -40,4 +59,12 @@ const formatterValue = (value) => {
       + `${separators.decimal}${stringValue.slice(stringValue.length - 2, stringValue.length)}`;
 };
 
-export default formatterValue;
+export const formatNumberForDatabase = (value) => {
+  const formatted = value.toString().replaceAll('.', '').replace(',', '.');
+  return formatted;
+};
+
+export const formatDateForDatabase = (value) => {
+  const formatted = moment(value, 'DD MM YYYY').format('YYYY-MM-DD');
+  return formatted;
+};

@@ -42,12 +42,16 @@ const Header = () => {
                   title={<SelectOptions>Selecione</SelectOptions>}
                   id="basic-nav-dropdown"
                 >
-                  <NavDropdown.Item onClick={() => router.push('/lista/produto')}>
+                  <NavDropdown.Item onClick={() => router.push('/listar/produto')}>
                     <LinkInMenu>
                       Produtos
                     </LinkInMenu>
                   </NavDropdown.Item>
-                  <NavDropdown.Item>Cadastro</NavDropdown.Item>
+                  <NavDropdown.Item onClick={() => router.push('/listar/equipamento')}>
+                    <LinkInMenu>
+                      Equipamentos
+                    </LinkInMenu>
+                  </NavDropdown.Item>
                 </NavDropdown>
               </Nav>
             </LastRightAlignedDiv>

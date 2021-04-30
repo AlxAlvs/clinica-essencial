@@ -10,24 +10,31 @@ import {
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { useRouter } from 'next/router';
+import { v4 as uuidv4 } from 'uuid';
 import {
   CardDiv,
   InsertBtnDiv,
   CardTitle,
+  TdMinimunWidth,
+  CentralizedDiv,
 } from '../../../public/static/css/styledComponents';
-import formatterValue from '../../utils';
+import { formatterValue } from '../../utils';
 import getModel from '../../models/index';
 
 const ListTable = ({
   data,
   table,
 }) => {
+  const router = useRouter();
+
   const renderTableHeader = () => (
     <thead>
       <tr>
         {getModel(table).map((property) => (
-          <th>{Object.values(property)[0].displayName}</th>
+          <th key={uuidv4()}>{Object.values(property)[0].displayName}</th>
         ))}
+        <th key={uuidv4()}>ações</th>
       </tr>
     </thead>
   );
@@ -55,10 +62,29 @@ const ListTable = ({
     <tbody>
       {data && Array.isArray(data.result) ? (
         data.result.map((databaseObject) => (
-          <tr>
+          <tr key={uuidv4()}>
             {getModel(table).map((property) => (
-              <td>{renderProperty(Object.values(property)[0], databaseObject)}</td>
+              <td key={uuidv4()}>
+                {renderProperty(Object.values(property)[0], databaseObject)}
+              </td>
             ))}
+            <TdMinimunWidth key={uuidv4()}>
+              <Button
+                key={uuidv4()}
+                variant="secondary"
+                onClick={() => router.push(`/editar/${table}/${databaseObject.id}`)}
+              >
+                Editar
+              </Button>
+              &nbsp;
+              <Button
+                key={uuidv4()}
+                variant="danger"
+                onClick={() => router.push(`/excluir/${table}/${databaseObject.id}`)}
+              >
+                Excluir
+              </Button>
+            </TdMinimunWidth>
           </tr>
         ))
       ) : (
@@ -93,7 +119,7 @@ const ListTable = ({
                 <Card.Body>
                   <Row>
                     <InsertBtnDiv>
-                      <Button variant="dark">
+                      <Button variant="dark" onClick={() => router.push(`/criar/${table}`)}>
                         Cadastrar
                         {' '}
                         {table}
@@ -107,7 +133,9 @@ const ListTable = ({
                 </Card.Body>
               </Card>
             ) : (
-              <Spinner animation="border" />
+              <CentralizedDiv>
+                <Spinner animation="border" />
+              </CentralizedDiv>
             )}
           </Col>
         </Row>
@@ -117,12 +145,12 @@ const ListTable = ({
 };
 
 ListTable.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.any),
+  data: PropTypes.shape(),
   table: PropTypes.string,
 };
 
 ListTable.defaultProps = {
-  data: [],
+  data: {},
   table: '',
 };
 

@@ -51,8 +51,51 @@ export const GlobalStyle = createGlobalStyle`
         background-color: rgb(19,18,18);
     }
 
+    .form-control.is-valid, .was-validated .form-control:valid {
+        padding-right: calc(1.5em + .75rem);
+        background-image: none;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+    }
+
+    #react-datepicker {
+        display: block;
+        width: 100%;
+        height: calc(1.5em + .75rem + 2px);
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        
+    }
+
     .card-header {
-        background-color: rgb(19,18,18);
+        background-color: rgb(40,40,40);
+    }
+
+    .modal-content {
+        color: #fff;
+        background-color: rgb(40,40,40);
+    }
+
+    .modal-body {
+        color: #fff;
+        background-color: rgb(19, 18, 18);
+        border: none;
+    }
+
+    .modal-header {
+        border: none;
+    }
+
+    .modal-footer {
+        border: none;
     }
 `;
 

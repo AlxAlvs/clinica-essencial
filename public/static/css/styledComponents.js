@@ -86,3 +86,19 @@ export const InsertBtnDiv = styled.div`
     justify-content: flex-end;
     width: 100%;
 `;
+
+export const LabelWhiteText = styled.div`
+    color: ${({ theme }) => theme.colors.secondary};
+`;
+
+export const ErrorTextMessage = styled.div`
+    color: red;
+`;
+
+export const TdMinimunWidth = styled.td`
+    width: 15%;
+`;
+
+export const DivBreakWord = styled.div`
+    word-break: break-word;
+`;

@@ -14,6 +14,7 @@ export default function MyApp({ Component, pageProps }) {
         <title>Clínica</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link rel="shortcut icon" href="#" />
         <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:ital,wght@0,300;1,300&family=Lobster+Two:ital@1&display=swap" rel="stylesheet" />
       </Head>
       <ThemeProvider theme={theme}>
