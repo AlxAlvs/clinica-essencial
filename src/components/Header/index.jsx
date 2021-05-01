@@ -52,6 +52,11 @@ const Header = () => {
                       Equipamentos
                     </LinkInMenu>
                   </NavDropdown.Item>
+                  <NavDropdown.Item onClick={() => router.push('/listar/profissional')}>
+                    <LinkInMenu>
+                      Profissionais
+                    </LinkInMenu>
+                  </NavDropdown.Item>
                 </NavDropdown>
               </Nav>
             </LastRightAlignedDiv>

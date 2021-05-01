@@ -19,7 +19,12 @@ import {
   TdMinimunWidth,
   CentralizedDiv,
 } from '../../../public/static/css/styledComponents';
-import { formatterValue } from '../../utils';
+import {
+  formatterValue,
+  cpfMask,
+  cnpjMask,
+  phoneMask,
+} from '../../utils';
 import getModel from '../../models/index';
 
 const ListTable = ({
@@ -43,12 +48,38 @@ const ListTable = ({
     switch (propToRender.type) {
       case 'monetary':
         return (
-          formatterValue(databaseObj[propToRender.databaseName])
+          databaseObj[propToRender.databaseName]
+            ? formatterValue(databaseObj[propToRender.databaseName])
+            : null
         );
       case 'date':
         return (
           databaseObj[propToRender.databaseName]
             ? moment(databaseObj[propToRender.databaseName], 'YYYY-MM-DD').format('DD MM YYYY')
+            : null
+        );
+      case 'checkbox':
+        return (
+          databaseObj[propToRender.databaseName] && databaseObj[propToRender.databaseName].data[0]
+            ? 'sim'
+            : 'não'
+        );
+      case 'cpf':
+        return (
+          databaseObj[propToRender.databaseName]
+            ? cpfMask(databaseObj[propToRender.databaseName])
+            : null
+        );
+      case 'cnpj':
+        return (
+          databaseObj[propToRender.databaseName]
+            ? cnpjMask(databaseObj[propToRender.databaseName])
+            : null
+        );
+      case 'phone':
+        return (
+          databaseObj[propToRender.databaseName]
+            ? phoneMask(databaseObj[propToRender.databaseName])
             : null
         );
       default:

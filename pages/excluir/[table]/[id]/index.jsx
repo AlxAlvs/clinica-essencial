@@ -110,7 +110,7 @@ const Edit = () => {
                 <CentralizedDiv>{table}</CentralizedDiv>
                 {Object.keys(objectToDelete).map((key) => (
                   <div key={uuidv4()}>
-                    {key !== 'id' ? (
+                    {key !== 'id' && typeof objectToDelete[key] !== 'object' ? (
                       <DivBreakWord>
                         <strong>{`${key}: `}</strong>
                         {objectToDelete[key]}

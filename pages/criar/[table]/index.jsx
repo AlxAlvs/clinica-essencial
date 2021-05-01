@@ -22,13 +22,19 @@ import {
 } from '../../../public/static/css/styledComponents';
 import getModel from '../../../src/models/index';
 import 'react-datepicker/dist/react-datepicker.css';
-import { formatterValue } from '../../../src/utils/index';
+import {
+  formatterValue,
+  cpfMask,
+  cnpjMask,
+  phoneMask,
+} from '../../../src/utils/index';
 
 registerLocale('pt-BR', ptBR);
 
 const Create = ({
   produtoToEdit,
   equipamentoToEdit,
+  profissionalToEdit,
   tableToEdit,
 }) => {
   const router = useRouter();
@@ -55,6 +61,17 @@ const Create = ({
 
   const [equipamentoToSave, setEquipamentoToSave] = useState(equipamentoInitialState);
 
+  const profissionalInitialState = {
+    nome: '',
+    cpf: '',
+    cnpj: '',
+    celular: '',
+    fixo: false,
+    aluga_sala: false,
+  };
+
+  const [profissionalToSave, setProfissionalToSave] = useState(profissionalInitialState);
+
   const setObjectToEdit = (tableName) => {
     switch (tableName) {
       case 'produto':
@@ -71,6 +88,17 @@ const Create = ({
           nome: equipamentoToEdit.nome,
           valor: formatterValue(equipamentoToEdit.valor),
           tipo: equipamentoToEdit.tipo,
+        });
+        break;
+      case 'profissional':
+        setProfissionalToSave({
+          id: profissionalToEdit.id,
+          nome: profissionalToEdit.nome,
+          cpf: profissionalToEdit.cpf ? cpfMask(profissionalToEdit.cpf) : null,
+          cnpj: profissionalToEdit.cnpj ? cnpjMask(profissionalToEdit.cnpj) : null,
+          celular: profissionalToEdit.celular ? phoneMask(profissionalToEdit.celular) : null,
+          fixo: profissionalToEdit.fixo.data[0],
+          aluga_sala: profissionalToEdit.aluga_sala.data[0],
         });
         break;
       default:
@@ -90,6 +118,7 @@ const Create = ({
   const clearFields = () => {
     setProdutoToSave(produtoInitialState);
     setEquipamentoToSave(equipamentoInitialState);
+    setProfissionalToSave(profissionalInitialState);
     setValidated(false);
   };
 
@@ -99,6 +128,8 @@ const Create = ({
         return JSON.stringify(produtoToSave);
       case 'equipamento':
         return JSON.stringify(equipamentoToSave);
+      case 'profissional':
+        return JSON.stringify(profissionalToSave);
       default:
         return '';
     }
@@ -281,12 +312,105 @@ const Create = ({
     }
   };
 
+  const renderFormGroupControlProfissional = (displayName) => {
+    switch (displayName) {
+      case 'nome':
+        return (
+          <Form.Control
+            maxLength={60}
+            value={profissionalToSave.nome}
+            type="text"
+            onChange={(e) => {
+              setProfissionalToSave({
+                ...profissionalToSave,
+                nome: e.target.value,
+              });
+            }}
+            required
+          />
+        );
+      case 'cpf':
+        return (
+          <Form.Control
+            maxLength={60}
+            value={profissionalToSave.cpf}
+            type="text"
+            onChange={(e) => {
+              setProfissionalToSave({
+                ...profissionalToSave,
+                cpf: e ? cpfMask(e.target.value) : null,
+              });
+            }}
+          />
+        );
+      case 'cnpj':
+        return (
+          <Form.Control
+            maxLength={60}
+            value={profissionalToSave.cnpj}
+            type="text"
+            onChange={(e) => {
+              setProfissionalToSave({
+                ...profissionalToSave,
+                cnpj: e ? cnpjMask(e.target.value) : null,
+              });
+            }}
+          />
+        );
+      case 'celular':
+        return (
+          <Form.Control
+            maxLength={60}
+            value={profissionalToSave.celular}
+            type="text"
+            required
+            onChange={(e) => {
+              setProfissionalToSave({
+                ...profissionalToSave,
+                celular: e ? phoneMask(e.target.value) : null,
+              });
+            }}
+          />
+        );
+      case 'fixo':
+        return (
+          <Form.Check
+            type="checkbox"
+            checked={!!profissionalToSave.fixo}
+            onChange={() => {
+              setProfissionalToSave({
+                ...profissionalToSave,
+                fixo: !profissionalToSave.fixo,
+              });
+            }}
+          />
+        );
+      case 'aluga sala':
+        return (
+          <Form.Check
+            type="checkbox"
+            checked={!!profissionalToSave.aluga_sala}
+            onChange={() => {
+              setProfissionalToSave({
+                ...profissionalToSave,
+                aluga_sala: !profissionalToSave.aluga_sala,
+              });
+            }}
+          />
+        );
+      default:
+        return <div />;
+    }
+  };
+
   const renderFormGroupControl = (displayName) => {
     switch (table) {
       case 'produto':
         return renderFormGroupControlProduto(displayName);
       case 'equipamento':
         return renderFormGroupControlEquipamento(displayName);
+      case 'profissional':
+        return renderFormGroupControlProfissional(displayName);
       default:
         return '';
     }
@@ -399,12 +523,26 @@ Create.propTypes = {
     tipo: PropTypes.string,
     id: PropTypes.number,
   }),
+  profissionalToEdit: PropTypes.shape({
+    nome: PropTypes.string,
+    cpf: PropTypes.string,
+    cnpj: PropTypes.string,
+    celular: PropTypes.string,
+    fixo: PropTypes.shape({
+      data: PropTypes.shape({}),
+    }),
+    aluga_sala: PropTypes.shape({
+      data: PropTypes.shape({}),
+    }),
+    id: PropTypes.number,
+  }),
   tableToEdit: PropTypes.string,
 };
 
 Create.defaultProps = {
   produtoToEdit: {},
   equipamentoToEdit: {},
+  profissionalToEdit: {},
   tableToEdit: '',
 };
 

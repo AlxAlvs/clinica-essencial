@@ -20,6 +20,8 @@ const Edit = () => {
   const { table, id } = router.query;
   const [produtoToEdit, setProdutoToEdit] = useState(null);
   const [equipamentoToEdit, setEquipamentoToEdit] = useState(null);
+  const [profissionalToEdit, setProfissionalToEdit] = useState(null);
+
   const [objectFound, setObjectFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const avoidCache = React.useRef(Date.now());
@@ -41,6 +43,10 @@ const Edit = () => {
           setEquipamentoToEdit(data.result[0]);
           setObjectFound(true);
           break;
+        case 'profissional':
+          setProfissionalToEdit(data.result[0]);
+          setObjectFound(true);
+          break;
         default:
           break;
       }
@@ -53,6 +59,7 @@ const Edit = () => {
         <Create
           produtoToEdit={produtoToEdit}
           equipamentoToEdit={equipamentoToEdit}
+          profissionalToEdit={profissionalToEdit}
           tableToEdit={table}
         />
       ) : (

@@ -59,8 +59,13 @@ export const formatterValue = (value) => {
       + `${separators.decimal}${stringValue.slice(stringValue.length - 2, stringValue.length)}`;
 };
 
-export const formatNumberForDatabase = (value) => {
+export const formatMoneyForDatabase = (value) => {
   const formatted = value.toString().replaceAll('.', '').replace(',', '.');
+  return formatted;
+};
+
+export const formatToOnlyNumbersForDatabase = (value) => {
+  const formatted = value.toString().replace(/\D/g, '');
   return formatted;
 };
 
@@ -68,3 +73,25 @@ export const formatDateForDatabase = (value) => {
   const formatted = moment(value, 'DD MM YYYY').format('YYYY-MM-DD');
   return formatted;
 };
+
+export const cpfMask = (value) => value
+  .replace(/\D/g, '')
+  .replace(/(\d{3})(\d)/, '$1.$2')
+  .replace(/(\d{3})(\d)/, '$1.$2')
+  .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+  .replace(/(-\d{2})\d+?$/, '$1');
+
+export const cnpjMask = (value) => value
+  .replace(/\D+/g, '')
+  .replace(/(\d{2})(\d)/, '$1.$2')
+  .replace(/(\d{3})(\d)/, '$1.$2')
+  .replace(/(\d{3})(\d)/, '$1/$2')
+  .replace(/(\d{4})(\d)/, '$1-$2')
+  .replace(/(-\d{2})\d+?$/, '$1');
+
+export const phoneMask = (value) => value
+  .replace(/\D+/g, '')
+  .replace(/(\d{2})(\d)/, '($1) $2')
+  .replace(/(\d{4})(\d)/, '$1-$2')
+  .replace(/(\d{4})-(\d)(\d{4})/, '$1$2-$3')
+  .replace(/(-\d{4})\d+?$/, '$1');
