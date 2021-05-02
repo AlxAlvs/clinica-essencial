@@ -97,6 +97,33 @@ export const GlobalStyle = createGlobalStyle`
     .modal-footer {
         border: none;
     }
+
+    .react-datepicker-wrapper {
+        width: 100%;
+    }
+
+    .notification {
+        background-color: none;
+        color: white;
+        text-decoration: none;
+        padding: 15px 26px;
+        position: relative;
+    }
+
+    .notification:hover {
+        background: #212121;
+    }
+
+    .notification .badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        padding: 5px 10px;
+        border-radius: 50%;
+        background: red;
+        color: white;
+    }
+    
 `;
 
 export const theme = {

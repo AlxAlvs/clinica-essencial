@@ -99,6 +99,11 @@ export const TdMinimunWidth = styled.td`
     width: 15%;
 `;
 
+export const TdMMaximunWidth = styled.td`
+    max-width: 300px;
+    overflow-wrap: break-word;
+`;
+
 export const DivBreakWord = styled.div`
     word-break: break-word;
 `;

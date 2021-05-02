@@ -18,12 +18,14 @@ import {
   CardTitle,
   TdMinimunWidth,
   CentralizedDiv,
+  TdMMaximunWidth,
 } from '../../../public/static/css/styledComponents';
 import {
   formatterValue,
   cpfMask,
   cnpjMask,
   phoneMask,
+  renderTableName,
 } from '../../utils';
 import getModel from '../../models/index';
 
@@ -95,9 +97,9 @@ const ListTable = ({
         data.result.map((databaseObject) => (
           <tr key={uuidv4()}>
             {getModel(table).map((property) => (
-              <td key={uuidv4()}>
+              <TdMMaximunWidth key={uuidv4()}>
                 {renderProperty(Object.values(property)[0], databaseObject)}
-              </td>
+              </TdMMaximunWidth>
             ))}
             <TdMinimunWidth key={uuidv4()}>
               <Button
@@ -128,12 +130,18 @@ const ListTable = ({
 
   const handleTitle = (string) => {
     const capitalizedWord = string.charAt(0).toUpperCase() + string.slice(1);
+    if (string === 'saída de caixa') {
+      return 'Saídas de caixa';
+    }
+    if (string === 'profissional') {
+      return 'Profissionais';
+    }
     return `${capitalizedWord}s`;
   };
 
   const renderTableTitle = () => (
     <CardTitle>
-      {handleTitle(table)}
+      {handleTitle(renderTableName(table))}
     </CardTitle>
   );
 
@@ -153,7 +161,7 @@ const ListTable = ({
                       <Button variant="dark" onClick={() => router.push(`/criar/${table}`)}>
                         Cadastrar
                         {' '}
-                        {table}
+                        {renderTableName(table)}
                       </Button>
                     </InsertBtnDiv>
                   </Row>

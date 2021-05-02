@@ -21,6 +21,8 @@ const Edit = () => {
   const [produtoToEdit, setProdutoToEdit] = useState(null);
   const [equipamentoToEdit, setEquipamentoToEdit] = useState(null);
   const [profissionalToEdit, setProfissionalToEdit] = useState(null);
+  const [clienteToEdit, setClienteToEdit] = useState(null);
+  const [saidaDeCaixaToEdit, setSaidaDeCaixaToEdit] = useState(null);
 
   const [objectFound, setObjectFound] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -47,6 +49,14 @@ const Edit = () => {
           setProfissionalToEdit(data.result[0]);
           setObjectFound(true);
           break;
+        case 'cliente':
+          setClienteToEdit(data.result[0]);
+          setObjectFound(true);
+          break;
+        case 'saidaDeCaixa':
+          setSaidaDeCaixaToEdit(data.result[0]);
+          setObjectFound(true);
+          break;
         default:
           break;
       }
@@ -60,6 +70,8 @@ const Edit = () => {
           produtoToEdit={produtoToEdit}
           equipamentoToEdit={equipamentoToEdit}
           profissionalToEdit={profissionalToEdit}
+          clienteToEdit={clienteToEdit}
+          saidaDeCaixaToEdit={saidaDeCaixaToEdit}
           tableToEdit={table}
         />
       ) : (

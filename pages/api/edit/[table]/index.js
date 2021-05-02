@@ -94,6 +94,63 @@ const professionalEdit = async (req, table, res) => {
   }
 };
 
+const clienteEdit = async (req, table, res) => {
+  const {
+    id, nome, data_nascimento, endereço, celular,
+  } = await req.body;
+
+  const formattedDate = data_nascimento ? formatDateForDatabase(data_nascimento) : data_nascimento;
+  const formattedCelular = celular ? formatToOnlyNumbersForDatabase(celular) : null;
+
+  try {
+    const result = await executeQuery({
+      query: `UPDATE ${table} 
+      SET 
+      nome = '${nome}', 
+      data_nascimento = '${formattedDate}', 
+      endereço = '${endereço}',
+      celular = '${formattedCelular}'
+      WHERE id = ${id}`,
+    });
+    console.log(result);
+    const data = {
+      result,
+    };
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: `Error while getting ${table}` });
+  }
+};
+
+const saidaDeCaixaEdit = async (req, table, res) => {
+  const {
+    id, descrição, valor, data_pagamento,
+  } = await req.body;
+
+  const formattedValue = formatMoneyForDatabase(valor);
+  const formattedDate = data_pagamento ? formatDateForDatabase(data_pagamento) : '';
+
+  try {
+    const result = await executeQuery({
+      query: `UPDATE ${table} 
+      SET 
+      descrição = '${descrição}', 
+      valor = '${formattedValue}', 
+      data_pagamento = '${formattedDate}'
+      WHERE id = ${id}`,
+    });
+    console.log(result);
+    const data = {
+      result,
+    };
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: `Error while getting ${table}` });
+  }
+};
+
 export default async (req, res) => {
   const {
     query: { table },
@@ -106,6 +163,10 @@ export default async (req, res) => {
       return equipamentoEdit(req, table, res);
     case 'profissional':
       return professionalEdit(req, table, res);
+    case 'cliente':
+      return clienteEdit(req, table, res);
+    case 'saidaDeCaixa':
+      return saidaDeCaixaEdit(req, table, res);
     default:
       return '';
   }

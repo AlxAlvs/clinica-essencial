@@ -95,3 +95,18 @@ export const phoneMask = (value) => value
   .replace(/(\d{4})(\d)/, '$1-$2')
   .replace(/(\d{4})-(\d)(\d{4})/, '$1$2-$3')
   .replace(/(-\d{4})\d+?$/, '$1');
+
+export const renderTableName = (tableName) => {
+  switch (tableName) {
+    case 'saidaDeCaixa':
+      return (
+        'saída de caixa'
+      );
+    case 'fluxoDeProcedimentos':
+      return (
+        'fluxo de procedimentos'
+      );
+    default:
+      return tableName;
+  }
+};

@@ -17,7 +17,11 @@ import {
   CardDiv,
   CentralizedDiv,
   DivBreakWord,
+  ErrorTextMessage,
 } from '../../../../public/static/css/styledComponents';
+import {
+  renderTableName,
+} from '../../../../src/utils/index';
 
 const fetcher = (url) => fetch(url).then((r) => r.json());
 
@@ -67,6 +71,11 @@ const Edit = () => {
     <div>
       <CardDiv>
         <Container fluid>
+          {errorMessage && (
+            <ErrorTextMessage>
+              {errorMessage}
+            </ErrorTextMessage>
+          )}
           {showSuccessAlert && (
           <Row>
             <Col md={{ span: 10, offset: 1 }}>
@@ -107,7 +116,7 @@ const Edit = () => {
                 <Modal.Title><CentralizedDiv>Deseja excluir ?</CentralizedDiv></Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                <CentralizedDiv>{table}</CentralizedDiv>
+                <CentralizedDiv><h4>{renderTableName(table)}</h4></CentralizedDiv>
                 {Object.keys(objectToDelete).map((key) => (
                   <div key={uuidv4()}>
                     {key !== 'id' && typeof objectToDelete[key] !== 'object' ? (

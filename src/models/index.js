@@ -21,6 +21,19 @@ models.profissional = () => [
   { aluga_sala: { displayName: 'aluga sala', type: 'checkbox', databaseName: 'aluga_sala' } },
 ];
 
+models.cliente = () => [
+  { nome: { displayName: 'nome', type: 'string', databaseName: 'nome' } },
+  { data_nascimento: { displayName: 'data de nascimento', type: 'date', databaseName: 'data_nascimento' } },
+  { endereço: { displayName: 'endereço', type: 'string', databaseName: 'endereço' } },
+  { celular: { displayName: 'celular', type: 'phone', databaseName: 'celular' } },
+];
+
+models.saidaDeCaixa = () => [
+  { descrição: { displayName: 'descrição', type: 'textArea', databaseName: 'descrição' } },
+  { valor: { displayName: 'valor (R$)', type: 'monetary', databaseName: 'valor' } },
+  { data_pagamento: { displayName: 'data do pagamento', type: 'date', databaseName: 'data_pagamento' } },
+];
+
 const getModel = (model) => {
   if (typeof models[model] === 'function') {
     return models[model]();
