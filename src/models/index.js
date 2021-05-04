@@ -34,6 +34,14 @@ models.saidaDeCaixa = () => [
   { data_pagamento: { displayName: 'data do pagamento', type: 'date', databaseName: 'data_pagamento' } },
 ];
 
+models.procedimento = () => [
+  { nome: { displayName: 'nome', type: 'string', databaseName: 'nome' } },
+  { profissionais: { displayName: 'profissionais', type: 'selectMultiple', databaseName: 'profissionais' } },
+  { equipamentos: { displayName: 'equipamentos', type: 'selectMultiple', databaseName: 'equipamentos' } },
+  { produtos: { displayName: 'produtos', type: 'selectMultiple', databaseName: 'produtos' } },
+  { valor: { displayName: 'valor (R$)', type: 'monetary', databaseName: 'valor' } },
+];
+
 const getModel = (model) => {
   if (typeof models[model] === 'function') {
     return models[model]();

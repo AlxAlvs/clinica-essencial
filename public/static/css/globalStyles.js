@@ -123,7 +123,6 @@ export const GlobalStyle = createGlobalStyle`
         background: red;
         color: white;
     }
-    
 `;
 
 export const theme = {

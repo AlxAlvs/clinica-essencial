@@ -67,6 +67,16 @@ const Edit = () => {
     }
   };
 
+  const handleProcedimentoPropertiesToDisplay = (key) => {
+    if (table === 'procedimento') {
+      if (key === 'nome' || key === 'valor') {
+        return true;
+      }
+      return false;
+    }
+    return true;
+  };
+
   return (
     <div>
       <CardDiv>
@@ -119,12 +129,14 @@ const Edit = () => {
                 <CentralizedDiv><h4>{renderTableName(table)}</h4></CentralizedDiv>
                 {Object.keys(objectToDelete).map((key) => (
                   <div key={uuidv4()}>
-                    {key !== 'id' && typeof objectToDelete[key] !== 'object' ? (
-                      <DivBreakWord>
-                        <strong>{`${key}: `}</strong>
-                        {objectToDelete[key]}
-                      </DivBreakWord>
-                    ) : null }
+                    {key !== 'id'
+                      && typeof objectToDelete[key] !== 'object'
+                      && handleProcedimentoPropertiesToDisplay(key) ? (
+                        <DivBreakWord>
+                          <strong>{`${key}: `}</strong>
+                          {objectToDelete[key]}
+                        </DivBreakWord>
+                      ) : null }
                   </div>
                 ))}
               </Modal.Body>

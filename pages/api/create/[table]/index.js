@@ -130,6 +130,56 @@ const saidaDeCaixaCreate = async (req, table, res) => {
   }
 };
 
+const procedimentoCreate = async (req, table, res) => {
+  const {
+    nome, profissionais, equipamentos, produtos, valor,
+  } = await req.body;
+
+  const formattedValue = await formatMoneyForDatabase(valor);
+
+  try {
+    const lastId = await executeQuery({
+      query: 'SELECT MAX(id) as lastId FROM procedimento;',
+    });
+    const currentId = await lastId ? JSON.parse(JSON.stringify(lastId))[0].lastId + 1 : 1;
+    const result = await executeQuery({
+      query: `INSERT INTO ${table} (id, nome, valor) 
+      VALUES(?, ?, ?)`,
+      values: [currentId, nome, formattedValue],
+    });
+    await profissionais.forEach((profissional) => {
+      executeQuery({
+        query: `INSERT INTO procedimentoProfissional (procedimentoId, profissionalId) 
+        VALUES(?, ?)`,
+        values: [currentId, profissional.value],
+      });
+    });
+    await equipamentos.forEach((equipamento) => {
+      executeQuery({
+        query: `INSERT INTO procedimentoEquipamento (procedimentoId, equipamentoId) 
+        VALUES(?, ?)`,
+        values: [currentId, equipamento.value],
+      });
+    });
+    await produtos.forEach((produto) => {
+      executeQuery({
+        query: `INSERT INTO procedimentoProduto (procedimentoId, produtoId) 
+        VALUES(?, ?)`,
+        values: [currentId, produto.value],
+      });
+    });
+
+    console.log(result);
+    const data = {
+      result,
+    };
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: `Error while getting ${table}` });
+  }
+};
+
 export default async (req, res) => {
   const {
     query: { table },
@@ -146,6 +196,8 @@ export default async (req, res) => {
       return clienteCreate(req, table, res);
     case 'saidaDeCaixa':
       return saidaDeCaixaCreate(req, table, res);
+    case 'procedimento':
+      return procedimentoCreate(req, table, res);
     default:
       return '';
   }

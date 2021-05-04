@@ -156,6 +156,11 @@ const Header = () => {
                         Saidas de caixa
                       </LinkInMenu>
                     </NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => router.push('/listar/procedimento')}>
+                      <LinkInMenu>
+                        Procedimentos
+                      </LinkInMenu>
+                    </NavDropdown.Item>
                   </NavDropdown>
                 </Nav>
               </LastRightAlignedDiv>

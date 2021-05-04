@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import MultiSelect from 'react-multi-select-component';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import moment from 'moment';
 import ptBR from 'date-fns/locale/pt-BR';
@@ -28,6 +29,7 @@ import {
   cnpjMask,
   phoneMask,
   renderTableName,
+  handleProcedimento,
 } from '../../../src/utils/index';
 
 registerLocale('pt-BR', ptBR);
@@ -38,15 +40,28 @@ const Create = ({
   profissionalToEdit,
   clienteToEdit,
   saidaDeCaixaToEdit,
+  procedimentoToEdit,
   tableToEdit,
 }) => {
   const router = useRouter();
   let { table } = router.query;
 
+  const multiDropdownStrings = {
+    allItemsAreSelected: 'Todos as opções estão selecionadas.',
+    clearSearch: 'Limpar busca',
+    noOptions: '',
+    search: 'Busca',
+    selectAll: 'Selecionar todos',
+    selectSomeItems: 'Selecione...',
+  };
+
   const [validated, setValidated] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [profissionaisList, setProfissionaisList] = useState([]);
+  const [equipamentosList, setEquipamentosList] = useState([]);
+  const [produtosList, setProdutosList] = useState([]);
 
   const produtoInitialState = {
     nome: '',
@@ -91,6 +106,28 @@ const Create = ({
   };
 
   const [saidaDeCaixaToSave, setSaidaDeCaixaToSave] = useState(saidaDeCaixaInitialState);
+
+  const procedimentoInitialState = {
+    nome: '',
+    profissionais: [],
+    equipamentos: [],
+    produtos: [],
+    valor: '',
+  };
+
+  const [procedimentoToSave, setProcedimentoToSave] = useState(procedimentoInitialState);
+
+  const procedimentoFormatToEdit = () => {
+    const procedimentoFormatted = handleProcedimento(procedimentoToEdit);
+    setProcedimentoToSave({
+      id: procedimentoFormatted.id,
+      nome: procedimentoFormatted.nome,
+      profissionais: procedimentoFormatted.profissionais,
+      equipamentos: procedimentoFormatted.equipamentos,
+      produtos: procedimentoFormatted.produtos,
+      valor: procedimentoFormatted.valor,
+    });
+  };
 
   const setObjectToEdit = (tableName) => {
     switch (tableName) {
@@ -138,6 +175,9 @@ const Create = ({
           data_pagamento: saidaDeCaixaToEdit.data_pagamento ? moment(saidaDeCaixaToEdit.data_pagamento, 'YYYY-MM-DD').format('DD MM YYYY') : null,
         });
         break;
+      case 'procedimento':
+        procedimentoFormatToEdit();
+        break;
       default:
         break;
     }
@@ -146,10 +186,36 @@ const Create = ({
     table = tableName;
   };
 
+  const getAllForMultipleSelects = async (tableToGet, setter) => {
+    try {
+      if (errorMessage) setErrorMessage('');
+      await fetch(`/api/getAll/${tableToGet}`)
+        .then((resp) => resp.json())
+        .then((data) => {
+          const result = [];
+          if (data && Array.isArray(data.result)) {
+            data.result.forEach((obj) => (result.push({ value: obj.id, label: obj.nome })));
+          }
+          setter(result);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      setErrorMessage(error.message);
+    }
+  };
+
   useEffect(() => {
     if (tableToEdit) {
       setObjectToEdit(tableToEdit);
     }
+    getAllForMultipleSelects('profissional', setProfissionaisList);
+    getAllForMultipleSelects('equipamento', setEquipamentosList);
+    getAllForMultipleSelects('produto', setProdutosList);
   }, []);
 
   const clearFields = () => {
@@ -173,6 +239,10 @@ const Create = ({
       ...saidaDeCaixaInitialState,
       id: saidaDeCaixaToEdit ? saidaDeCaixaToEdit.id : null,
     });
+    setProcedimentoToSave({
+      ...procedimentoInitialState,
+      id: procedimentoToEdit ? procedimentoToEdit.id : null,
+    });
     setValidated(false);
   };
 
@@ -188,6 +258,8 @@ const Create = ({
         return JSON.stringify(clienteToSave);
       case 'saidaDeCaixa':
         return JSON.stringify(saidaDeCaixaToSave);
+      case 'procedimento':
+        return JSON.stringify(procedimentoToSave);
       default:
         return '';
     }
@@ -587,6 +659,84 @@ const Create = ({
     }
   };
 
+  const renderFormGroupControlProcedimento = (displayName) => {
+    switch (displayName) {
+      case 'nome':
+        return (
+          <Form.Control
+            maxLength={60}
+            value={procedimentoToSave.nome}
+            type="text"
+            required
+            onChange={(e) => {
+              setProcedimentoToSave({
+                ...procedimentoToSave,
+                nome: e.target.value,
+              });
+            }}
+          />
+        );
+      case 'profissionais':
+        return (
+          <MultiSelect
+            options={profissionaisList}
+            overrideStrings={multiDropdownStrings}
+            value={procedimentoToSave.profissionais}
+            onChange={(e) => {
+              setProcedimentoToSave({
+                ...procedimentoToSave,
+                profissionais: e,
+              });
+            }}
+          />
+        );
+      case 'equipamentos':
+        return (
+          <MultiSelect
+            options={equipamentosList}
+            overrideStrings={multiDropdownStrings}
+            value={procedimentoToSave.equipamentos}
+            onChange={(e) => {
+              setProcedimentoToSave({
+                ...procedimentoToSave,
+                equipamentos: e,
+              });
+            }}
+          />
+        );
+      case 'produtos':
+        return (
+          <MultiSelect
+            options={produtosList}
+            overrideStrings={multiDropdownStrings}
+            value={procedimentoToSave.produtos}
+            onChange={(e) => {
+              setProcedimentoToSave({
+                ...procedimentoToSave,
+                produtos: e,
+              });
+            }}
+          />
+        );
+      case 'valor (R$)':
+        return (
+          <Form.Control
+            value={procedimentoToSave.valor}
+            type="text"
+            required
+            onChange={(e) => {
+              setProcedimentoToSave({
+                ...procedimentoToSave,
+                valor: e ? formatterValue(e.target.value) : null,
+              });
+            }}
+          />
+        );
+      default:
+        return <div />;
+    }
+  };
+
   const renderFormGroupControl = (displayName) => {
     switch (table) {
       case 'produto':
@@ -599,6 +749,8 @@ const Create = ({
         return renderFormGroupControlCliente(displayName);
       case 'saidaDeCaixa':
         return renderFormGroupControlSaidaDeCaixa(displayName);
+      case 'procedimento':
+        return renderFormGroupControlProcedimento(displayName);
       default:
         return '';
     }
@@ -737,6 +889,14 @@ Create.propTypes = {
     data_pagamento: PropTypes.string,
     id: PropTypes.number,
   }),
+  procedimentoToEdit: PropTypes.shape({
+    nome: PropTypes.string,
+    profissionais: PropTypes.shape([]),
+    equipamentos: PropTypes.shape([]),
+    produtos: PropTypes.shape([]),
+    valor: PropTypes.string,
+    id: PropTypes.number,
+  }),
   tableToEdit: PropTypes.string,
 };
 
@@ -746,6 +906,7 @@ Create.defaultProps = {
   profissionalToEdit: {},
   clienteToEdit: {},
   saidaDeCaixaToEdit: {},
+  procedimentoToEdit: {},
   tableToEdit: '',
 };
 

@@ -151,6 +151,65 @@ const saidaDeCaixaEdit = async (req, table, res) => {
   }
 };
 
+const procedimentoEdit = async (req, table, res) => {
+  const {
+    id, nome, profissionais, equipamentos, produtos, valor,
+  } = await req.body;
+
+  const formattedValue = await formatMoneyForDatabase(valor);
+
+  try {
+    const result = await executeQuery({
+      query: `UPDATE ${table} 
+      SET 
+      nome = '${nome}',
+      valor = '${formattedValue}'
+      WHERE id = ${id}`,
+    });
+    await executeQuery({
+      query: `DELETE FROM procedimentoProfissional 
+      WHERE procedimentoProfissional.procedimentoId = ${id}`,
+    });
+    await executeQuery({
+      query: `DELETE FROM procedimentoEquipamento 
+      WHERE procedimentoEquipamento.procedimentoId = ${id}`,
+    });
+    await executeQuery({
+      query: `DELETE FROM procedimentoProduto 
+      WHERE procedimentoProduto.procedimentoId = ${id}`,
+    });
+    await profissionais.forEach((profissional) => {
+      executeQuery({
+        query: `INSERT INTO procedimentoProfissional (procedimentoId, profissionalId) 
+        VALUES(?, ?)`,
+        values: [id, profissional.value],
+      });
+    });
+    await equipamentos.forEach((equipamento) => {
+      executeQuery({
+        query: `INSERT INTO procedimentoEquipamento (procedimentoId, equipamentoId) 
+        VALUES(?, ?)`,
+        values: [id, equipamento.value],
+      });
+    });
+    await produtos.forEach((produto) => {
+      executeQuery({
+        query: `INSERT INTO procedimentoProduto (procedimentoId, produtoId) 
+        VALUES(?, ?)`,
+        values: [id, produto.value],
+      });
+    });
+    console.log(result);
+    const data = {
+      result,
+    };
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: `Error while getting ${table}` });
+  }
+};
+
 export default async (req, res) => {
   const {
     query: { table },
@@ -167,6 +226,8 @@ export default async (req, res) => {
       return clienteEdit(req, table, res);
     case 'saidaDeCaixa':
       return saidaDeCaixaEdit(req, table, res);
+    case 'procedimento':
+      return procedimentoEdit(req, table, res);
     default:
       return '';
   }

@@ -110,3 +110,50 @@ export const renderTableName = (tableName) => {
       return tableName;
   }
 };
+
+const procedimentoResultToObject = (finalList, procedimentoResultById) => {
+  const profissionais = [];
+  const profissionaisIds = [];
+  const equipamentos = [];
+  const equipamentosIds = [];
+  const produtos = [];
+  const produtosIds = [];
+
+  procedimentoResultById.forEach((result) => {
+    if (!profissionaisIds.includes(result.profissionalIdentification)) {
+      profissionais.push({
+        value: result.profissionalIdentification,
+        label: result.profissionalNome,
+      });
+      profissionaisIds.push(result.profissionalIdentification);
+    }
+    if (!equipamentosIds.includes(result.equipamentoIdentification)) {
+      equipamentos.push({
+        value: result.equipamentoIdentification,
+        label: result.equipamentoNome,
+      });
+      equipamentosIds.push(result.equipamentoIdentification);
+    }
+    if (!produtosIds.includes(result.produtoIdentification)) {
+      produtos.push({
+        value: result.produtoIdentification,
+        label: result.produtoNome,
+      });
+      produtosIds.push(result.produtoIdentification);
+    }
+  });
+
+  return {
+    id: procedimentoResultById ? procedimentoResultById[0].id : null,
+    nome: procedimentoResultById ? procedimentoResultById[0].nome : null,
+    valor: procedimentoResultById ? procedimentoResultById[0].valor : null,
+    profissionais,
+    equipamentos,
+    produtos,
+  };
+};
+
+export const handleProcedimento = (procedimentoFromDatabase) => {
+  const finalList = [];
+  return procedimentoResultToObject(finalList, procedimentoFromDatabase);
+};
