@@ -1,0 +1,48 @@
+instale o git, o node js, o mysql server e o mysql workbench
+https://git-scm.com/download/
+https://nodejs.org/en/
+https://dev.mysql.com/downloads/mysql/
+https://dev.mysql.com/downloads/workbench/
+
+na instaçao do mysql vai aparecer uma tela de criacao de usuario, crie um usuario root com senha root
+após finalizar a instalação abra o mysql workbench
+entre no banco localhost (se ja nao existir um conecte-se com a seguinte configuração:
+  Hostname:localhost
+  Port:3306
+  Username:root
+  password:root
+)
+
+dentro da conexão execute o script do arquivo SQL.txt que está na pasta raiz do projeto
+a mesma que vc clonou. copie e cole o script no banco, na sequencia execute(ícone de raio). 
+observe que as tabelas do script foram criadas.
+
+clone o repositorio pra uma pasta do sistema
+https://github.com/AlxAlvs/clinica-essencial
+
+entre na pasta do projeto e
+abra uma tela de comando como administrador nela
+execute o comando:
+npm install
+espere terminar
+execute: 
+npm run dev
+espere alguns segundos
+abra o navegador na página http://localhost:3000/
+observe que a tela do sistema aparecerá.
+volte para a tela de comando que executou npm run dev, e precione ctrl + c (derrube o sistema).
+
+abra o arquivo initializeclinica.vbs (que esta na raiz do projeto) com qualquer editor de texto (notepad)
+note que há um caminho para o arquivo clinica.bat altere esse caminho para o arquivo clinica.bat (na pasta raiz do projeto clonado, o caminho todo desde c:).
+salve o arquivo
+recorte o initializeclinica.vbs e cole na segunte pasta StartUp:
+C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
+caso a pasta ProgramData nao esteja aparecendo clique em view ou visualização no canto esquerdo superior da pasta C: 
+e marque a opção hidden itens ou mostrar arquivos ocultos (algo assim).
+o mesmo vale para as demais pastas.
+
+após isso, reinicie o pc 
+espere ele carregar os programas dele (pode demorar alguns minutos caso nao tenha muita memoria ou ssd)
+
+vá para http://localhost:3000/
+o sistema deve aparecer.
