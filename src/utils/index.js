@@ -60,7 +60,9 @@ export const formatterValue = (value) => {
 };
 
 export const formatMoneyForDatabase = (value) => {
-  const formatted = value.toString().replaceAll('.', '').replace(',', '.');
+  console.log(value);
+  const formatted = value.toString().replace(/\./g,'').replace(',', '.');
+  console.log(formatted);
   return formatted;
 };
 

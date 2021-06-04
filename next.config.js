@@ -1,10 +1,10 @@
 module.exports = {
   serverRuntimeConfig: {
-    MYSQL_HOST: 'clinica_db_1',
+    MYSQL_HOST: 'localhost',
     MYSQL_PORT: 3306,
     MYSQL_DATABASE: 'clinica',
-    MYSQL_USER: 'user',
-    MYSQL_PASSWORD: 'user',
+    MYSQL_USER: 'root',
+    MYSQL_PASSWORD: 'root',
   },
   publicRuntimeConfig: {
   },

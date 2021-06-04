@@ -12,8 +12,8 @@ const produtoCreate = async (req, table, res) => {
     nome, valor, data_validade,
   } = await req.body;
 
-  const formattedValue = formatMoneyForDatabase(valor);
-  const formattedDate = data_validade ? formatDateForDatabase(data_validade) : data_validade;
+  const formattedValue = await formatMoneyForDatabase(valor);
+  const formattedDate = await data_validade ? formatDateForDatabase(data_validade) : data_validade;
 
   try {
     const result = await executeQuery({
@@ -36,7 +36,7 @@ const equipamentoCreate = async (req, table, res) => {
     nome, valor, tipo,
   } = await req.body;
 
-  const formattedValue = formatMoneyForDatabase(valor);
+  const formattedValue = await formatMoneyForDatabase(valor);
 
   try {
     const result = await executeQuery({
@@ -59,9 +59,9 @@ const profissionalCreate = async (req, table, res) => {
     nome, cpf, cnpj, celular, fixo, aluga_sala,
   } = await req.body;
 
-  const formattedCpf = cpf ? formatToOnlyNumbersForDatabase(cpf) : null;
-  const formattedCnpj = cnpj ? formatToOnlyNumbersForDatabase(cnpj) : null;
-  const formattedCelular = celular ? formatToOnlyNumbersForDatabase(celular) : null;
+  const formattedCpf = await  cpf ? formatToOnlyNumbersForDatabase(cpf) : null;
+  const formattedCnpj = await cnpj ? formatToOnlyNumbersForDatabase(cnpj) : null;
+  const formattedCelular = await celular ? formatToOnlyNumbersForDatabase(celular) : null;
 
   try {
     const result = await executeQuery({
@@ -85,8 +85,8 @@ const clienteCreate = async (req, table, res) => {
     nome, data_nascimento, endereço, celular,
   } = await req.body;
 
-  const formattedDate = data_nascimento ? formatDateForDatabase(data_nascimento) : data_nascimento;
-  const formattedCelular = celular ? formatToOnlyNumbersForDatabase(celular) : null;
+  const formattedDate = await data_nascimento ? formatDateForDatabase(data_nascimento) : data_nascimento;
+  const formattedCelular = await celular ? formatToOnlyNumbersForDatabase(celular) : null;
 
   try {
     const result = await executeQuery({
@@ -110,8 +110,8 @@ const saidaDeCaixaCreate = async (req, table, res) => {
     descrição, valor, data_pagamento,
   } = await req.body;
 
-  const formattedValue = formatMoneyForDatabase(valor);
-  const formattedDate = data_pagamento ? formatDateForDatabase(data_pagamento) : data_pagamento;
+  const formattedValue = await formatMoneyForDatabase(valor);
+  const formattedDate = await data_pagamento ? formatDateForDatabase(data_pagamento) : data_pagamento;
 
   try {
     const result = await executeQuery({
