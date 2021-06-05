@@ -41,6 +41,9 @@ caso a pasta ProgramData nao esteja aparecendo clique em view ou visualização 
 e marque a opção hidden itens ou mostrar arquivos ocultos (algo assim).
 o mesmo vale para as demais pastas.
 
+abra o arquivo clinica.bat (na pasta raiz) e substitua o caminho do projeto para o caminho em que foi clonado.
+se necessario renomeie o arquivo para clinica.txt para abrir salve e depois renomeie de volta para clinica.bat
+
 após isso, reinicie o pc 
 espere ele carregar os programas dele (pode demorar alguns minutos caso nao tenha muita memoria ou ssd)
 
