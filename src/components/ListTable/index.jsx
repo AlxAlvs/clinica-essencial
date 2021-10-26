@@ -136,6 +136,9 @@ const ListTable = ({
     if (string === 'profissional') {
       return 'Profissionais';
     }
+    if (string === 'fluxoProcedimento') {
+      return 'Fluxo de procedimento';
+    }
     return `${capitalizedWord}s`;
   };
 

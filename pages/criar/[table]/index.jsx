@@ -10,7 +10,7 @@ import {
   Alert,
 } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import MultiSelect from 'react-multi-select-component';
+import Select from 'react-select';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import moment from 'moment';
 import ptBR from 'date-fns/locale/pt-BR';
@@ -20,6 +20,7 @@ import {
   LabelWhiteText,
   ErrorTextMessage,
   CentralizedDiv,
+  SpanInvalid,
 } from '../../../public/static/css/styledComponents';
 import getModel from '../../../src/models/index';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -30,6 +31,8 @@ import {
   phoneMask,
   renderTableName,
   handleProcedimento,
+  handleFluxoProcedimento,
+  formatMoneyForDatabase,
 } from '../../../src/utils/index';
 
 registerLocale('pt-BR', ptBR);
@@ -41,19 +44,11 @@ const Create = ({
   clienteToEdit,
   saidaDeCaixaToEdit,
   procedimentoToEdit,
+  fluxoProcedimentoToEdit,
   tableToEdit,
 }) => {
   const router = useRouter();
   let { table } = router.query;
-
-  const multiDropdownStrings = {
-    allItemsAreSelected: 'Todos as opções estão selecionadas.',
-    clearSearch: 'Limpar busca',
-    noOptions: '',
-    search: 'Busca',
-    selectAll: 'Selecionar todos',
-    selectSomeItems: 'Selecione...',
-  };
 
   const [validated, setValidated] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -62,6 +57,9 @@ const Create = ({
   const [profissionaisList, setProfissionaisList] = useState([]);
   const [equipamentosList, setEquipamentosList] = useState([]);
   const [produtosList, setProdutosList] = useState([]);
+  const [procedimentosList, setProcedimentosList] = useState([]);
+  const [clientesList, setClientesList] = useState([]);  
+  const [isFluxoProcedimentoValid, setIsFluxoProcedimentoValid] = useState(true);  
 
   const produtoInitialState = {
     nome: '',
@@ -116,6 +114,41 @@ const Create = ({
   };
 
   const [procedimentoToSave, setProcedimentoToSave] = useState(procedimentoInitialState);
+
+  const fluxoProcedimentoInitialState = {
+    cliente: [],
+    procedimentos: [],
+    profissionais: [],
+    equipamentos: [],
+    produtos: [],
+    valor_profissional: '',
+    data_procedimento: '',
+    descrição: '',
+    valor_total: '',
+    pago: false,
+    forma_pagamento: '',
+  };
+
+  const [fluxoProcedimentoToSave, setFluxoProcedimentoToSave] = useState(fluxoProcedimentoInitialState);
+
+  const fluxoProcedimentoFormatToEdit = () => {
+    const fluxoProcedimentoFormatted = handleFluxoProcedimento(fluxoProcedimentoToEdit);
+    const isPago = Boolean(fluxoProcedimentoFormatted.pago.data[0]);
+    setFluxoProcedimentoToSave({
+      id: fluxoProcedimentoFormatted.id,
+      cliente: fluxoProcedimentoFormatted.cliente,
+      procedimentos: fluxoProcedimentoFormatted.procedimentos,
+      profissionais: fluxoProcedimentoFormatted.profissionais,
+      equipamentos: fluxoProcedimentoFormatted.equipamentos,
+      produtos: fluxoProcedimentoFormatted.produtos,
+      valor_profissional: fluxoProcedimentoFormatted.valor_profissional,
+      data_procedimento: fluxoProcedimentoFormatted.data_procedimento ? moment(fluxoProcedimentoFormatted.data_procedimento, 'YYYY-MM-DD').format('DD MM YYYY') : null,
+      descrição: fluxoProcedimentoFormatted.descrição,
+      valor_total: fluxoProcedimentoFormatted.valor_total,
+      pago: isPago,
+      forma_pagamento: fluxoProcedimentoFormatted.forma_pagamento,
+    });
+  };
 
   const procedimentoFormatToEdit = () => {
     const procedimentoFormatted = handleProcedimento(procedimentoToEdit);
@@ -178,6 +211,9 @@ const Create = ({
       case 'procedimento':
         procedimentoFormatToEdit();
         break;
+      case 'fluxoProcedimento':
+        fluxoProcedimentoFormatToEdit();
+        break;
       default:
         break;
     }
@@ -194,7 +230,11 @@ const Create = ({
         .then((data) => {
           const result = [];
           if (data && Array.isArray(data.result)) {
-            data.result.forEach((obj) => (result.push({ value: obj.id, label: obj.nome })));
+            data.result.forEach((obj) => {
+              if (!result.some(data => data.value === obj.id)) {
+                result.push({ value: obj.id, label: obj.nome, valor: obj.valor });
+              }
+            });
           }
           setter(result);
         })
@@ -208,15 +248,6 @@ const Create = ({
       setErrorMessage(error.message);
     }
   };
-
-  useEffect(() => {
-    if (tableToEdit) {
-      setObjectToEdit(tableToEdit);
-    }
-    getAllForMultipleSelects('profissional', setProfissionaisList);
-    getAllForMultipleSelects('equipamento', setEquipamentosList);
-    getAllForMultipleSelects('produto', setProdutosList);
-  }, []);
 
   const clearFields = () => {
     setProdutoToSave({
@@ -241,10 +272,25 @@ const Create = ({
     });
     setProcedimentoToSave({
       ...procedimentoInitialState,
-      id: procedimentoToEdit ? procedimentoToEdit.id : null,
+      id: procedimentoToEdit && procedimentoToEdit[0] ? procedimentoToEdit[0].id : null,
+    });
+    setFluxoProcedimentoToSave({
+      ...fluxoProcedimentoInitialState,
+      id: fluxoProcedimentoToEdit && fluxoProcedimentoToEdit[0] ?  fluxoProcedimentoToEdit[0].id : null,
     });
     setValidated(false);
   };
+
+  useEffect(() => {
+    if (tableToEdit) {
+      setObjectToEdit(tableToEdit);
+    }
+    getAllForMultipleSelects('profissional', setProfissionaisList);
+    getAllForMultipleSelects('equipamento', setEquipamentosList);
+    getAllForMultipleSelects('produto', setProdutosList);
+    getAllForMultipleSelects('procedimento', setProcedimentosList);
+    getAllForMultipleSelects('cliente', setClientesList);
+  }, []);
 
   const objectToJson = () => {
     switch (table) {
@@ -260,6 +306,8 @@ const Create = ({
         return JSON.stringify(saidaDeCaixaToSave);
       case 'procedimento':
         return JSON.stringify(procedimentoToSave);
+      case 'fluxoProcedimento':
+        return JSON.stringify(fluxoProcedimentoToSave);
       default:
         return '';
     }
@@ -267,6 +315,15 @@ const Create = ({
 
   const handleSubmit = async (event) => {
     const form = event.currentTarget;
+
+    if (table == 'fluxoProcedimento' && fluxoProcedimentoToSave.cliente.length <= 0) {
+      event.preventDefault();
+      event.stopPropagation();
+      setIsFluxoProcedimentoValid(false);
+      setValidated(true);
+      return;
+    }
+
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
@@ -334,6 +391,30 @@ const Create = ({
       </CardTitle>
     );
   };
+
+  const calculateTotalValueFluxoProcedimento = () => {
+    const valorTotalProdutos = fluxoProcedimentoToSave.produtos.reduce((sum, nextItem) => sum + parseFloat(nextItem.valor ? nextItem.valor : 0), 0);
+    const valorTotalProcedimentos = fluxoProcedimentoToSave.procedimentos.reduce((sum, nextItem) => sum + parseFloat(nextItem.valor ? nextItem.valor : 0), 0);
+    const valorTotalEquipamentos = fluxoProcedimentoToSave.equipamentos.reduce((sum, nextItem) => sum + parseFloat(nextItem.valor ? nextItem.valor : 0), 0);
+    const valorTotalProfissionais = parseFloat(fluxoProcedimentoToSave.valor_profissional ? formatMoneyForDatabase(fluxoProcedimentoToSave.valor_profissional) : 0);
+    const defaultValue = valorTotalProdutos + valorTotalProcedimentos + valorTotalEquipamentos + valorTotalProfissionais;
+    if (defaultValue > 0) {
+      setFluxoProcedimentoToSave({
+        ...fluxoProcedimentoToSave,
+        valor_total: formatterValue(defaultValue.toFixed(2)),
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (fluxoProcedimentoToSave.cliente) {
+      setIsFluxoProcedimentoValid(true);
+    }
+  }, [fluxoProcedimentoToSave.cliente]);
+
+  useEffect(() => {
+    calculateTotalValueFluxoProcedimento();
+  }, [fluxoProcedimentoToSave.procedimentos, fluxoProcedimentoToSave.equipamentos, fluxoProcedimentoToSave.profissionais, fluxoProcedimentoToSave.produtos, fluxoProcedimentoToSave.valor_profissional]);
 
   const renderFormGroupControlProduto = (displayName) => {
     switch (displayName) {
@@ -678,9 +759,11 @@ const Create = ({
         );
       case 'profissionais':
         return (
-          <MultiSelect
+          <Select
             options={profissionaisList}
-            overrideStrings={multiDropdownStrings}
+            isMulti
+            placeholder={'Selecione...'}
+            isSearchable 
             value={procedimentoToSave.profissionais}
             onChange={(e) => {
               setProcedimentoToSave({
@@ -692,10 +775,12 @@ const Create = ({
         );
       case 'equipamentos':
         return (
-          <MultiSelect
+          <Select
             options={equipamentosList}
-            overrideStrings={multiDropdownStrings}
+            isMulti
+            isSearchable 
             value={procedimentoToSave.equipamentos}
+            placeholder={'Selecione...'}
             onChange={(e) => {
               setProcedimentoToSave({
                 ...procedimentoToSave,
@@ -706,9 +791,11 @@ const Create = ({
         );
       case 'produtos':
         return (
-          <MultiSelect
+          <Select
             options={produtosList}
-            overrideStrings={multiDropdownStrings}
+            isMulti
+            placeholder={'Selecione...'}
+            isSearchable 
             value={procedimentoToSave.produtos}
             onChange={(e) => {
               setProcedimentoToSave({
@@ -737,6 +824,183 @@ const Create = ({
     }
   };
 
+  const renderFormGroupControlFluxoProcedimento = (displayName) => {
+    switch (displayName) {
+      case 'cliente':
+        return (
+          <>
+            <Select
+              options={clientesList}
+              placeholder={'Selecione...'}
+              isSearchable 
+              value={fluxoProcedimentoToSave.cliente}
+              onChange={(e) => {
+                setFluxoProcedimentoToSave({
+                  ...fluxoProcedimentoToSave,
+                  cliente: e,
+                });
+              }}
+            />
+            {isFluxoProcedimentoValid ? null : <SpanInvalid > Campo Invalido </SpanInvalid>}
+          </>
+        );
+      case 'profissionais':
+        return (
+          <Select
+            options={profissionaisList}
+            isMulti
+            placeholder={'Selecione...'}
+            isSearchable
+            value={fluxoProcedimentoToSave.profissionais}
+            onChange={(e) => {
+              setFluxoProcedimentoToSave({
+                ...fluxoProcedimentoToSave,
+                profissionais: e,
+              });
+            }}
+          />
+        );
+      case 'equipamentos':
+        return (
+          <Select
+            options={equipamentosList}
+            isMulti
+            placeholder={'Selecione...'}
+            isSearchable
+            value={fluxoProcedimentoToSave.equipamentos}
+            onChange={(e) => {
+              setFluxoProcedimentoToSave({
+                ...fluxoProcedimentoToSave,
+                equipamentos: e,
+              });
+            }}
+          />
+        );
+      case 'produtos':
+        return (
+          <Select
+            options={produtosList}
+            isMulti
+            placeholder={'Selecione...'}
+            isSearchable
+            value={fluxoProcedimentoToSave.produtos}
+            onChange={(e) => {
+              setFluxoProcedimentoToSave({
+                ...fluxoProcedimentoToSave,
+                produtos: e,
+              });
+            }}
+          />
+        );
+      case 'procedimentos':
+        return (
+          <Select
+            options={procedimentosList}
+            isMulti
+            placeholder={'Selecione...'}
+            isSearchable
+            value={fluxoProcedimentoToSave.procedimentos}
+            onChange={(e) => {
+              setFluxoProcedimentoToSave({
+                ...fluxoProcedimentoToSave,
+                procedimentos: e,
+              });
+            }}
+          />
+        );
+      case 'valor dos profissionais (R$)':
+        return (
+          <Form.Control
+            value={fluxoProcedimentoToSave.valor_profissional}
+            type="text"
+            required
+            onChange={(e) => {
+              setFluxoProcedimentoToSave({
+                ...fluxoProcedimentoToSave,
+                valor_profissional: e ? formatterValue(e.target.value) : '',
+              });
+            }}
+          />
+        );
+      case 'data do procedimento':
+        return (
+          <>
+            <br />
+            <DatePicker
+              value={fluxoProcedimentoToSave.data_procedimento}
+              id="react-datepicker"
+              locale="pt-BR"
+              showYearDropdown
+              autoComplete="off"
+              onChange={(value) => {
+                setFluxoProcedimentoToSave({
+                  ...fluxoProcedimentoToSave,
+                  data_procedimento: value ? moment(value, 'YYYY-MM-DD').format('DD MM YYYY') : '',
+                });
+              }}
+            />
+          </>
+        );
+      case 'descrição':
+        return (
+          <Form.Control
+            maxLength={200}
+            value={fluxoProcedimentoToSave.descrição}
+            type="text"
+            onChange={(e) => {
+              setFluxoProcedimentoToSave({
+                ...fluxoProcedimentoToSave,
+                descrição: e.target.value,
+              });
+            }}
+          />
+        );
+      case 'valor total do procedimento (R$)':
+        return (
+          <Form.Control
+            value={fluxoProcedimentoToSave.valor_total}
+            type="text"
+            required
+            onChange={(e) => {
+              setFluxoProcedimentoToSave({
+                ...fluxoProcedimentoToSave,
+                valor_total: e ? formatterValue(e.target.value) : '',
+              });
+            }}
+          />
+        );
+      case 'pago':
+        return (
+          <Form.Check
+            type="checkbox"
+            checked={!!fluxoProcedimentoToSave.pago}
+            onChange={() => {
+              setFluxoProcedimentoToSave({
+                ...fluxoProcedimentoToSave,
+                pago: !fluxoProcedimentoToSave.pago,
+              });
+            }}
+          />
+        );
+      case 'forma de pagamento':
+        return (
+          <Form.Control
+            maxLength={100}
+            value={fluxoProcedimentoToSave.forma_pagamento}
+            type="text"
+            onChange={(e) => {
+              setFluxoProcedimentoToSave({
+                ...fluxoProcedimentoToSave,
+                forma_pagamento: e.target.value,
+              });
+            }}
+          />
+        );
+      default:
+        return <div />;
+    }
+  };
+
   const renderFormGroupControl = (displayName) => {
     switch (table) {
       case 'produto':
@@ -751,6 +1015,8 @@ const Create = ({
         return renderFormGroupControlSaidaDeCaixa(displayName);
       case 'procedimento':
         return renderFormGroupControlProcedimento(displayName);
+      case 'fluxoProcedimento':
+        return renderFormGroupControlFluxoProcedimento(displayName);
       default:
         return '';
     }
@@ -868,9 +1134,7 @@ Create.propTypes = {
     cpf: PropTypes.string,
     cnpj: PropTypes.string,
     celular: PropTypes.string,
-    fixo: PropTypes.shape({
-      data: PropTypes.shape({}),
-    }),
+    fixo: PropTypes.bool,
     aluga_sala: PropTypes.shape({
       data: PropTypes.shape({}),
     }),
@@ -897,6 +1161,19 @@ Create.propTypes = {
     valor: PropTypes.string,
     id: PropTypes.number,
   }),
+  fluxoProcedimentoToEdit: PropTypes.shape({
+    cliente: PropTypes.shape([]),
+    profissionais: PropTypes.shape([]),
+    equipamentos: PropTypes.shape([]),
+    produtos: PropTypes.shape([]),
+    procedimentos: PropTypes.shape([]),
+    valor_profissional: PropTypes.string,
+    data_procedimento: PropTypes.string,
+    descrição: PropTypes.string,
+    valor_total: PropTypes.string,
+    pago: PropTypes.bool,
+    id: PropTypes.number,
+  }),
   tableToEdit: PropTypes.string,
 };
 
@@ -907,6 +1184,7 @@ Create.defaultProps = {
   clienteToEdit: {},
   saidaDeCaixaToEdit: {},
   procedimentoToEdit: {},
+  fluxoProcedimentoToEdit: {},
   tableToEdit: '',
 };
 

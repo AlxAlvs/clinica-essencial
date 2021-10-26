@@ -33,6 +33,9 @@ const Edit = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [objIsAssociated, setObjIsAssociated] = useState('');
+  const [enableExclusionButton, setEnableExclusionButton] = useState(false);
+  const [alreadyCheckedForAssociations, setAlreadyCheckedForAssociations] = useState(false);
 
   const { data, error } = useSWR([`/api/getById/${table}/${id}`, avoidCache], fetcher);
 
@@ -40,10 +43,35 @@ const Edit = () => {
 
   setTimeout(() => { setLoading(false); }, 3000);
 
+  const checkIfObjectIsAssociated = async () => {
+    try {
+      const res = await fetch(`/api/checkIfAssociated/${table}/${id}`, {
+        method: 'GET',
+      }).then(response => response.json());
+
+      if (res.result.length > 0) {
+        setObjIsAssociated('Há um fluxo de procedimento e/ou procedimento associado. caso queira prosseguir, exclua-o antes.');
+      }
+      
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      setErrorMessage(err.message);
+    }
+    setEnableExclusionButton(true);
+    setAlreadyCheckedForAssociations(true);
+  };
+
   useEffect(() => {
     if (data && Array.isArray(data.result) && data.result.length > 0) {
       setObjectToDelete(data.result[0]);
       setShowSuccessAlert(false);
+      if (table === 'cliente' || table === 'produto' || table === 'equipamento' || table === 'profissional' || table === 'procedimento') {
+        checkIfObjectIsAssociated();
+      } else {
+        setEnableExclusionButton(true);
+        setAlreadyCheckedForAssociations(true);
+      }
     }
   }, [data]);
 
@@ -74,7 +102,27 @@ const Edit = () => {
       }
       return false;
     }
+    if (table === 'fluxoProcedimento') {
+      if (key === 'clienteNome' || key === 'procedimentoNome' ) {
+        return true;
+      }
+      return false;
+    }
     return true;
+  };
+
+  const handlePropDisplay = (key) => {
+    if (key === 'data_pagamento') {
+      return 'data do pagamento';
+    }
+    if (key === 'clienteNome') {
+      return 'nome do cliente';
+    }
+    if (key === 'procedimentoNome') {
+      return 'nome do procedimento';
+    }
+
+    return key;
   };
 
   return (
@@ -120,40 +168,50 @@ const Edit = () => {
             </Col>
           </Row>
           )}
-          {objectToDelete && !showSuccessAlert ? (
+          {objectToDelete && !showSuccessAlert && alreadyCheckedForAssociations ? (
             <Modal.Dialog>
-              <Modal.Header>
-                <Modal.Title><CentralizedDiv>Deseja excluir ?</CentralizedDiv></Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <CentralizedDiv><h4>{renderTableName(table)}</h4></CentralizedDiv>
-                {Object.keys(objectToDelete).map((key) => (
-                  <div key={uuidv4()}>
-                    {key !== 'id'
-                      && typeof objectToDelete[key] !== 'object'
-                      && handleProcedimentoPropertiesToDisplay(key) ? (
-                        <DivBreakWord>
-                          <strong>{`${key}: `}</strong>
-                          {objectToDelete[key]}
-                        </DivBreakWord>
-                      ) : null }
-                  </div>
-                ))}
-              </Modal.Body>
-              <Modal.Footer>
-                <Button
-                  variant="secondary"
-                  onClick={() => router.push(`/listar/${table}`)}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={() => deleteObject()}
-                >
-                  Sim
-                </Button>
-              </Modal.Footer>
+              {objIsAssociated
+                ?
+                  <Modal.Header>
+                    {objIsAssociated}
+                  </Modal.Header>
+                : 
+                  <>
+                    <Modal.Header>
+                      <Modal.Title><CentralizedDiv>Deseja excluir ?</CentralizedDiv></Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <CentralizedDiv><h4>{renderTableName(table)}</h4></CentralizedDiv>
+                      {Object.keys(objectToDelete).map((key) => (
+                        <div key={uuidv4()}>
+                          {key !== 'id'
+                            && typeof objectToDelete[key] !== 'object'
+                            && handleProcedimentoPropertiesToDisplay(key) ? (
+                              <DivBreakWord>
+                                <strong>{`${handlePropDisplay(key)}: `}</strong>
+                                {objectToDelete[key]}
+                              </DivBreakWord>
+                            ) : null }
+                        </div>
+                      ))}
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button
+                        variant="secondary"
+                        onClick={() => router.push(`/listar/${table}`)}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        variant="danger"
+                        onClick={() => deleteObject()}
+                        disabled={!enableExclusionButton}
+                      >
+                        Sim
+                      </Button>
+                    </Modal.Footer>
+                </>
+              }
             </Modal.Dialog>
           ) : (
             <CentralizedDiv>

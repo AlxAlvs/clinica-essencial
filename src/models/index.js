@@ -42,6 +42,20 @@ models.procedimento = () => [
   { valor: { displayName: 'valor (R$)', type: 'monetary', databaseName: 'valor' } },
 ];
 
+models.fluxoProcedimento = () => [
+  { clientes: { displayName: 'cliente', type: 'selectOne', databaseName: 'clientes' } },
+  { procedimentos: { displayName: 'procedimentos', type: 'selectMultiple', databaseName: 'procedimentos' } },
+  { equipamentos: { displayName: 'equipamentos', type: 'selectMultiple', databaseName: 'equipamentos' } },
+  { produtos: { displayName: 'produtos', type: 'selectMultiple', databaseName: 'produtos' } },
+  { profissionais: { displayName: 'profissionais', type: 'selectMultiple', databaseName: 'profissionais' } },
+  { valor_profissional: { displayName: 'valor dos profissionais (R$)', type: 'monetary', databaseName: 'valor_profissional' } },
+  { data_procedimento: { displayName: 'data do procedimento', type: 'date', databaseName: 'data_procedimento' } },
+  { descrição: { displayName: 'descrição', type: 'string', databaseName: 'descrição' } },
+  { valor_total: { displayName: 'valor total do procedimento (R$)', type: 'monetary', databaseName: 'valor_total' } },
+  { forma_pagamento: { displayName: 'forma de pagamento', type: 'string', databaseName: 'forma_pagamento' } },
+  { pago: { displayName: 'pago', type: 'checkbox', databaseName: 'pago' } },
+];
+
 const getModel = (model) => {
   if (typeof models[model] === 'function') {
     return models[model]();

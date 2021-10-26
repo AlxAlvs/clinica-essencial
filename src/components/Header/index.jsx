@@ -78,13 +78,36 @@ const Header = () => {
     }
   };
 
+  const checkIfPaymentLateAlert = (fluxoProcedimentosList) => {
+
+  };
+
   const getClientes = async () => {
+    try {
+      if (errorMessage) setErrorMessage('');
+      await fetch('/api/getAll/fluxoProcedimentos')
+        .then((resp) => resp.json())
+        .then((data) => {
+          checkIfClientBirthDayAlert(data.result);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      setErrorMessage(error.message);
+    }
+  };
+
+  const getFluxoProcedimentos = async () => {
     try {
       if (errorMessage) setErrorMessage('');
       await fetch('/api/getAll/cliente')
         .then((resp) => resp.json())
         .then((data) => {
-          checkIfClientBirthDayAlert(data.result);
+          checkIfPaymentLateAlert(data.result);
         })
         .catch((error) => {
           // eslint-disable-next-line no-console
@@ -161,6 +184,11 @@ const Header = () => {
                         Procedimentos
                       </LinkInMenu>
                     </NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => router.push('/listar/fluxoProcedimento')}>
+                      <LinkInMenu>
+                        Fluxo de procedimento
+                      </LinkInMenu>
+                    </NavDropdown.Item>
                   </NavDropdown>
                 </Nav>
               </LastRightAlignedDiv>
@@ -186,17 +214,22 @@ const Header = () => {
         <Modal.Header>
           <Modal.Title>
             <CentralizedDiv>
-              <h6>Clientes com aniversário hoje ou nos próximos dias</h6>
+              <h6>Alertas:</h6>
             </CentralizedDiv>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {clientesBirthDay.map((cliente) => (
             <div key={uuidv4()}>
-              <DivBreakWord>
-                <strong>{`${cliente.nome}: `}</strong>
-                {cliente.dataNascimento}
-              </DivBreakWord>
+              <>
+                <CentralizedDiv>
+                <h6>Clientes com aniversário hoje ou nos próximos dias</h6>
+                </CentralizedDiv>
+                <DivBreakWord>
+                  <strong>{`${cliente.nome}: `}</strong>
+                  {cliente.dataNascimento}
+                </DivBreakWord>
+              </>
             </div>
           ))}
         </Modal.Body>

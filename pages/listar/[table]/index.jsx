@@ -66,6 +66,59 @@ const List = () => {
     );
   };
 
+  const fluxoProcedimentoResultToObject = (finalList, fluxoProcedimentoResultById) => {
+    const profissionais = [];
+    const profissionaisIds = [];
+    const equipamentos = [];
+    const equipamentosIds = [];
+    const produtos = [];
+    const produtosIds = [];
+    const procedimentos = [];
+    const procedimentosIds = [];
+    const clientes = [];
+    const clientesIds = [];
+
+    fluxoProcedimentoResultById.forEach((result) => {
+      if (!profissionaisIds.includes(result.profissionalIdentification)) {
+        profissionais.push(result.profissionalNome);
+        profissionaisIds.push(result.profissionalIdentification);
+      }
+      if (!equipamentosIds.includes(result.equipamentoIdentification)) {
+        equipamentos.push(result.equipamentoNome);
+        equipamentosIds.push(result.equipamentoIdentification);
+      }
+      if (!produtosIds.includes(result.produtoIdentification)) {
+        produtos.push(result.produtoNome);
+        produtosIds.push(result.produtoIdentification);
+      }
+      if (!procedimentosIds.includes(result.procedimentoIdentification)) {
+        procedimentos.push(result.procedimentoNome);
+        procedimentosIds.push(result.procedimentoIdentification);
+      }
+      if (!clientesIds.includes(result.clienteIdentification)) {
+        clientes.push(result.clienteNome);
+        clientesIds.push(result.clienteIdentification);
+      }
+    });
+
+    finalList.push(
+      {
+        id: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].id : null,
+        profissionais: profissionais ? profissionais.join(', ') : null,
+        equipamentos: equipamentos ? equipamentos.join(', ') : null,
+        procedimentos: procedimentos ? procedimentos.join(', ') : null,
+        produtos: produtos ? produtos.join(', ') : null,
+        clientes: clientes ? clientes.join(', ') : null,
+        valor_profissional: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].valor_profissional : null,
+        data_procedimento: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].data_procedimento : null,
+        descrição: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].descrição : null,
+        valor_total: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].valor_total : null,
+        forma_pagamento: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].forma_pagamento : null,
+        pago: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].pago : null,
+      },
+    );
+  };
+
   useEffect(() => {
     if (data && Array.isArray(data.result)) {
       const finalList = [];
@@ -75,6 +128,16 @@ const List = () => {
         const groupedByProcedimentoId = groupBy(data.result, (result) => result.id);
         uniqueProcedimentoIds
           .forEach((id) => procedimentoResultToObject(finalList, groupedByProcedimentoId.get(id)));
+        const dataFinal = {
+          result: finalList,
+        };
+        setObjectsToList(dataFinal);
+      } else if (table === 'fluxoProcedimento') {
+        const allFluxoProcedimentoIds = data.result.map((result) => result.id);
+        const uniqueFluxoProcedimentoIds = [...new Set(allFluxoProcedimentoIds)];
+        const groupedByFluxoProcedimentoId = groupBy(data.result, (result) => result.id);
+        uniqueFluxoProcedimentoIds
+          .forEach((id) => fluxoProcedimentoResultToObject(finalList, groupedByFluxoProcedimentoId.get(id)));
         const dataFinal = {
           result: finalList,
         };

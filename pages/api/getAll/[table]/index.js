@@ -35,14 +35,49 @@ export default async (req, res) => {
     }
   }
 
+  if (table === 'fluxoProcedimento') {
+    try {
+      const result = await executeQuery({
+        query: `SELECT fluxoProcedimento.*,
+        profissional.nome as profissionalNome,
+        profissional.id as profissionalIdentification,
+        equipamento.nome as equipamentoNome,
+        equipamento.id as equipamentoIdentification,
+        produto.nome as produtoNome,
+        produto.id as produtoIdentification,
+        procedimento.nome as procedimentoNome,
+        procedimento.id as procedimentoIdentification,
+        cliente.nome as clienteNome,
+        cliente.id as clienteIdentification
+        FROM fluxoProcedimento 
+        LEFT JOIN fluxoProcedimentoProfissional ON fluxoProcedimentoProfissional.fluxoProcedimentoId = fluxoProcedimento.Id
+        LEFT JOIN profissional ON fluxoProcedimentoProfissional.profissionalId = profissional.id
+        LEFT JOIN fluxoProcedimentoEquipamento ON fluxoProcedimentoEquipamento.fluxoProcedimentoId = fluxoProcedimento.Id
+        LEFT JOIN equipamento ON fluxoProcedimentoEquipamento.equipamentoId = equipamento.id
+        LEFT JOIN fluxoProcedimentoProduto ON fluxoProcedimentoProduto.fluxoProcedimentoId = fluxoProcedimento.Id
+        LEFT JOIN produto ON fluxoProcedimentoProduto.produtoId = produto.id
+        LEFT JOIN fluxoProcedimentoProcedimento ON fluxoProcedimentoProcedimento.fluxoProcedimentoId = fluxoProcedimento.Id
+        LEFT JOIN procedimento ON fluxoProcedimentoProcedimento.procedimentoId = procedimento.id
+        LEFT JOIN cliente ON fluxoProcedimento.clienteId = cliente.id;`,
+      });
+      const data = {
+        result,
+      };
+      return res.status(200).json(data);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ error: `Error while getting ${table}, ${error}` });
+    }
+  }
+
   try {
     const result = await executeQuery({
       query: `SELECT * FROM clinica.${table} ORDER BY 2`,
     });
-    const data = {
+    const data = await {
       result,
     };
-    return res.status(200).json(data);
+    return await res.status(200).json(data);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: `Error while getting ${table}` });

@@ -22,7 +22,7 @@ export const HomeBtn = styled.span`
 export const LinkInMenu = styled.div`
     &:hover {
         cursor: pointer;
-        color: ${({ theme }) => theme.colors.secondary};
+        color: black;
         text-decoration: none;
     }
     width: 100%;
@@ -106,4 +106,11 @@ export const TdMMaximunWidth = styled.td`
 
 export const DivBreakWord = styled.div`
     word-break: break-word;
+`;
+
+export const SpanInvalid = styled.span`
+    width: 100%;
+    margin-top: .25rem;
+    font-size: 80%;
+    color: #dc3545;
 `;

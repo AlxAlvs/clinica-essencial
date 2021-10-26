@@ -210,6 +210,85 @@ const procedimentoEdit = async (req, table, res) => {
   }
 };
 
+const fluxoProcedimentoEdit = async (req, table, res) => {
+  const {
+    id, cliente, profissionais, equipamentos, produtos, procedimentos, valor_profissional, data_procedimento, descrição, valor_total, pago, forma_pagamento
+  } = await req.body;
+
+  const clientes = await Array.isArray(cliente) ? cliente : [cliente];
+  const isPago = await Boolean(pago);
+  const formattedValorProfissional = await formatMoneyForDatabase(valor_profissional);
+  const formattedValorTotal = await formatMoneyForDatabase(valor_total);
+  const formattedProcedimentoDate = await data_procedimento ? formatDateForDatabase(data_procedimento) : '';
+
+  try {
+    const result = await executeQuery({
+      query: `UPDATE ${table} 
+      SET 
+      clienteId = '${clientes[0].value}',
+      valor_profissional = '${formattedValorProfissional}',
+      data_procedimento = '${formattedProcedimentoDate}',
+      descrição = '${descrição}',
+      valor_total = '${formattedValorTotal}', 
+      pago = ${isPago}, 
+      forma_pagamento = '${forma_pagamento}'
+      WHERE id = ${id}`,
+    });
+    await executeQuery({
+      query: `DELETE FROM fluxoProcedimentoProfissional 
+      WHERE fluxoProcedimentoProfissional.fluxoProcedimentoId = ${id}`,
+    });
+    await executeQuery({
+      query: `DELETE FROM fluxoProcedimentoEquipamento 
+      WHERE fluxoProcedimentoEquipamento.fluxoProcedimentoId = ${id}`,
+    });
+    await executeQuery({
+      query: `DELETE FROM fluxoProcedimentoProduto 
+      WHERE fluxoProcedimentoProduto.fluxoProcedimentoId = ${id}`,
+    });
+    await executeQuery({
+      query: `DELETE FROM fluxoProcedimentoProcedimento 
+      WHERE fluxoProcedimentoProcedimento.fluxoProcedimentoId = ${id}`,
+    });
+    await profissionais.forEach((profissional) => {
+      executeQuery({
+        query: `INSERT INTO fluxoProcedimentoProfissional (fluxoProcedimentoId, profissionalId) 
+        VALUES(?, ?)`,
+        values: [id, profissional.value],
+      });
+    });
+    await equipamentos.forEach((equipamento) => {
+      executeQuery({
+        query: `INSERT INTO fluxoProcedimentoEquipamento (fluxoProcedimentoId, equipamentoId) 
+        VALUES(?, ?)`,
+        values: [id, equipamento.value],
+      });
+    });
+    await produtos.forEach((produto) => {
+      executeQuery({
+        query: `INSERT INTO fluxoProcedimentoProduto (fluxoProcedimentoId, produtoId) 
+        VALUES(?, ?)`,
+        values: [id, produto.value],
+      });
+    });
+    await procedimentos.forEach((produto) => {
+      executeQuery({
+        query: `INSERT INTO fluxoProcedimentoProcedimento (fluxoProcedimentoId, procedimentoId) 
+        VALUES(?, ?)`,
+        values: [id, produto.value],
+      });
+    });
+    console.log(result);
+    const data = {
+      result,
+    };
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: `Error while getting ${table}` });
+  }
+};
+
 export default async (req, res) => {
   const {
     query: { table },
@@ -228,6 +307,8 @@ export default async (req, res) => {
       return saidaDeCaixaEdit(req, table, res);
     case 'procedimento':
       return procedimentoEdit(req, table, res);
+    case 'fluxoProcedimento':
+      return fluxoProcedimentoEdit(req, table, res);
     default:
       return '';
   }

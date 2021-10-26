@@ -180,6 +180,65 @@ const procedimentoCreate = async (req, table, res) => {
   }
 };
 
+const fluxoProcedimentoCreate = async (req, table, res) => {
+  const {
+    cliente, profissionais, equipamentos, produtos, procedimentos, valor_profissional, data_procedimento, descrição, valor_total, pago, forma_pagamento
+  } = await req.body;
+
+  const valorTotalFormatted = await formatMoneyForDatabase(valor_total);
+  const valorProfissionalFormatted = await formatMoneyForDatabase(valor_profissional);
+  const dataProcedimentoFormatted = await data_procedimento ? formatDateForDatabase(data_procedimento) : data_procedimento;
+
+  try {
+    const lastId = await executeQuery({
+      query: 'SELECT MAX(id) as lastId FROM fluxoProcedimento;',
+    });
+    const currentId = await lastId ? JSON.parse(JSON.stringify(lastId))[0].lastId + 1 : 1;
+    const result = await executeQuery({
+      query: `INSERT INTO ${table} (id, clienteId, valor_profissional, data_procedimento, descrição, valor_total, pago, forma_pagamento) 
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?)`,
+      values: [currentId, cliente.value, valorProfissionalFormatted, dataProcedimentoFormatted, descrição, valorTotalFormatted, pago, forma_pagamento],
+    });
+    await profissionais.forEach((profissional) => {
+      executeQuery({
+        query: `INSERT INTO fluxoProcedimentoProfissional (fluxoProcedimentoId, profissionalId) 
+        VALUES(?, ?)`,
+        values: [currentId, profissional.value],
+      });
+    });
+    await equipamentos.forEach((equipamento) => {
+      executeQuery({
+        query: `INSERT INTO fluxoProcedimentoEquipamento (fluxoProcedimentoId, equipamentoId) 
+        VALUES(?, ?)`,
+        values: [currentId, equipamento.value],
+      });
+    });
+    await produtos.forEach((produto) => {
+      executeQuery({
+        query: `INSERT INTO fluxoProcedimentoProduto (fluxoProcedimentoId, produtoId) 
+        VALUES(?, ?)`,
+        values: [currentId, produto.value],
+      });
+    });
+    await procedimentos.forEach((procedimento) => {
+      executeQuery({
+        query: `INSERT INTO fluxoProcedimentoProcedimento (fluxoProcedimentoId, procedimentoId) 
+        VALUES(?, ?)`,
+        values: [currentId, procedimento.value],
+      });
+    });
+
+    console.log(result);
+    const data = {
+      result,
+    };
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: `Error while getting ${table}, ${error}` });
+  }
+};
+
 export default async (req, res) => {
   const {
     query: { table },
@@ -198,6 +257,8 @@ export default async (req, res) => {
       return saidaDeCaixaCreate(req, table, res);
     case 'procedimento':
       return procedimentoCreate(req, table, res);
+    case 'fluxoProcedimento':
+      return fluxoProcedimentoCreate(req, table, res);
     default:
       return '';
   }

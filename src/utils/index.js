@@ -104,16 +104,16 @@ export const renderTableName = (tableName) => {
       return (
         'saída de caixa'
       );
-    case 'fluxoDeProcedimentos':
+    case 'fluxoProcedimento':
       return (
-        'fluxo de procedimentos'
+        'fluxo de procedimento'
       );
     default:
       return tableName;
   }
 };
 
-const procedimentoResultToObject = (finalList, procedimentoResultById) => {
+const procedimentoResultToObject = (procedimentoResultById) => {
   const profissionais = [];
   const profissionaisIds = [];
   const equipamentos = [];
@@ -155,7 +155,76 @@ const procedimentoResultToObject = (finalList, procedimentoResultById) => {
   };
 };
 
+const fluxoProcedimentoResultToObject = (fluxoProcedimentoResultById) => {
+  const profissionais = [];
+  const profissionaisIds = [];
+  const equipamentos = [];
+  const equipamentosIds = [];
+  const produtos = [];
+  const produtosIds = [];
+  const procedimentos = [];
+  const procedimentosIds = [];
+  const clientes = [];
+  const clientesIds = [];
+
+  fluxoProcedimentoResultById.forEach((result) => {
+    if (!profissionaisIds.includes(result.profissionalIdentification)) {
+      profissionais.push({
+        value: result.profissionalIdentification,
+        label: result.profissionalNome,
+      });
+      profissionaisIds.push(result.profissionalIdentification);
+    }
+    if (!equipamentosIds.includes(result.equipamentoIdentification)) {
+      equipamentos.push({
+        value: result.equipamentoIdentification,
+        label: result.equipamentoNome,
+      });
+      equipamentosIds.push(result.equipamentoIdentification);
+    }
+    if (!produtosIds.includes(result.produtoIdentification)) {
+      produtos.push({
+        value: result.produtoIdentification,
+        label: result.produtoNome,
+      });
+      produtosIds.push(result.produtoIdentification);
+    }
+    if (!procedimentosIds.includes(result.procedimentoIdentification)) {
+      procedimentos.push({
+        value: result.procedimentoIdentification,
+        label: result.procedimentoNome,
+      });
+      procedimentosIds.push(result.procedimentoIdentification);
+    }
+    if (!clientesIds.includes(result.clienteIdentification)) {
+      clientes.push({
+        value: result.clienteIdentification,
+        label: result.clienteNome,
+      });
+      clientesIds.push(result.clienteIdentification);
+    }
+  });
+
+  return {
+    id: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].id : null,
+    cliente: clientes,
+    valor_profissional: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].valor_profissional : null,
+    data_procedimento: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].data_procedimento : null,
+    descrição: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].descrição : null,
+    valor_total: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].valor_total : null,
+    pago: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].pago : null,
+    forma_pagamento: fluxoProcedimentoResultById ? fluxoProcedimentoResultById[0].forma_pagamento : null,
+    profissionais,
+    equipamentos,
+    produtos,
+    procedimentos,
+  };
+};
+
 export const handleProcedimento = (procedimentoFromDatabase) => {
-  const finalList = [];
-  return procedimentoResultToObject(finalList, procedimentoFromDatabase);
+  return procedimentoResultToObject(procedimentoFromDatabase);
+};
+
+export const handleFluxoProcedimento = (fluxoProcedimentoFromDatabase) => {
+  return fluxoProcedimentoResultToObject(fluxoProcedimentoFromDatabase);
 };

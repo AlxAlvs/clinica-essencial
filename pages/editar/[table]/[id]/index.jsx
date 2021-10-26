@@ -24,6 +24,7 @@ const Edit = () => {
   const [clienteToEdit, setClienteToEdit] = useState(null);
   const [saidaDeCaixaToEdit, setSaidaDeCaixaToEdit] = useState(null);
   const [procedimentoToEdit, setProcedimentoToEdit] = useState(null);
+  const [fluxoProcedimentoToEdit, setFluxoProcedimentoToEdit] = useState(null);
 
   const [objectFound, setObjectFound] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -62,6 +63,10 @@ const Edit = () => {
           setProcedimentoToEdit(data.result);
           setObjectFound(true);
           break;
+        case 'fluxoProcedimento':
+          setFluxoProcedimentoToEdit(data.result);
+          setObjectFound(true);
+          break;
         default:
           break;
       }
@@ -78,6 +83,7 @@ const Edit = () => {
           clienteToEdit={clienteToEdit}
           saidaDeCaixaToEdit={saidaDeCaixaToEdit}
           procedimentoToEdit={procedimentoToEdit}
+          fluxoProcedimentoToEdit={fluxoProcedimentoToEdit}
           tableToEdit={table}
         />
       ) : (

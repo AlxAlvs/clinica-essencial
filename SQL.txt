@@ -65,3 +65,38 @@ CREATE TABLE IF NOT EXISTS clinica.procedimentoProduto (
     produtoId INT NOT NULL,
     PRIMARY KEY (id)
 );
+CREATE TABLE IF NOT EXISTS clinica.fluxoProcedimento (
+    id INT AUTO_INCREMENT,
+	clienteId INT NOT NULL,
+    valor_profissional VARCHAR(13),
+    data_procedimento VARCHAR(10),
+    descrição VARCHAR(255),
+	valor_total VARCHAR(13) NOT NULL,
+	pago BIT(1),
+    forma_pagamento VARCHAR(13),
+    PRIMARY KEY (id)
+);
+CREATE TABLE IF NOT EXISTS clinica.fluxoProcedimentoProcedimento (
+    id INT AUTO_INCREMENT,
+	procedimentoId INT NOT NULL,
+    fluxoProcedimentoId INT NOT NULL,
+    PRIMARY KEY (id)
+);
+CREATE TABLE IF NOT EXISTS clinica.fluxoProcedimentoEquipamento (
+    id INT AUTO_INCREMENT,
+	equipamentoId INT NOT NULL,
+    fluxoProcedimentoId INT NOT NULL,
+    PRIMARY KEY (id)
+);
+CREATE TABLE IF NOT EXISTS clinica.fluxoProcedimentoProduto (
+    id INT AUTO_INCREMENT,
+	produtoId INT NOT NULL,
+    fluxoProcedimentoId INT NOT NULL,
+    PRIMARY KEY (id)
+);
+CREATE TABLE IF NOT EXISTS clinica.fluxoProcedimentoProfissional (
+    id INT AUTO_INCREMENT,
+	profissionalId INT NOT NULL,
+    fluxoProcedimentoId INT NOT NULL,
+    PRIMARY KEY (id)
+);
