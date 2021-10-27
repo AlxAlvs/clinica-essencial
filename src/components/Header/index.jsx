@@ -24,14 +24,20 @@ import {
   CentralizedDiv,
   DivBreakWord,
   ErrorTextMessage,
+  HrAlertDivider,
+  DivYellowColor,
 } from '../../../public/static/css/styledComponents';
+import {
+  formatterValue,
+} from '../../utils';
 
 const Header = () => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState('');
   const [clientesBirthDay, setClientesBirthDay] = useState([]);
   const [showBirthDayModal, setShowBirthDayModal] = useState(false);
-  const [hasNewBirthDays, setHasNewBirthDays] = useState(false);
+  const [hasNewBirthDaysOrNewLatePayments, setHasNewBirthDaysOrNewLatePayments] = useState(false);
+  const [fluxoProcedimentoAtrasados, setFluxoProcedimentoAtrasados] = useState([]);
 
   const checkIfClientBirthDayAlert = (clientesList) => {
     const clientesToDisplay = [];
@@ -60,7 +66,7 @@ const Header = () => {
             dataNascimento: moment(cliente.data_nascimento, 'YYYY-MM-DD').format('DD/MM'),
           };
           clientesToDisplay.push(clienteToAdd);
-          setHasNewBirthDays(true);
+          setHasNewBirthDaysOrNewLatePayments(true);
         }
       }
     });
@@ -79,13 +85,32 @@ const Header = () => {
   };
 
   const checkIfPaymentLateAlert = (fluxoProcedimentosList) => {
-
+    const latePaymentsMessages = [];
+    fluxoProcedimentosList.forEach((fluxoProcedimento => {
+      if (fluxoProcedimento.data_procedimento) {
+        const fluxoProcedimentoDate = moment(fluxoProcedimento.data_procedimento, "YYYY-MM-DD");
+        console.log(fluxoProcedimentoDate.toString());
+        const fluxoProcedimentoDatePlus45Days = fluxoProcedimentoDate.add(45, 'days');
+        console.log(fluxoProcedimentoDatePlus45Days.toString());
+        const currentDate = moment();
+        const isBeforeOrEqual = fluxoProcedimentoDatePlus45Days.isSameOrBefore(currentDate, 'day');
+        const isPago = Boolean(fluxoProcedimento.pago.data[0]);
+        if (isBeforeOrEqual && !isPago) {
+          latePaymentsMessages.push({
+            cliente: fluxoProcedimento.clienteNome,
+            data: fluxoProcedimento.data_procedimento,
+            total: fluxoProcedimento.valor_total,
+          });
+        }
+      }
+    }));
+    setFluxoProcedimentoAtrasados(latePaymentsMessages);
   };
 
   const getClientes = async () => {
     try {
       if (errorMessage) setErrorMessage('');
-      await fetch('/api/getAll/fluxoProcedimentos')
+      await fetch('/api/getAll/cliente')
         .then((resp) => resp.json())
         .then((data) => {
           checkIfClientBirthDayAlert(data.result);
@@ -104,7 +129,7 @@ const Header = () => {
   const getFluxoProcedimentos = async () => {
     try {
       if (errorMessage) setErrorMessage('');
-      await fetch('/api/getAll/cliente')
+      await fetch('/api/getAll/fluxoProcedimento')
         .then((resp) => resp.json())
         .then((data) => {
           checkIfPaymentLateAlert(data.result);
@@ -122,14 +147,25 @@ const Header = () => {
 
   useEffect(() => {
     getClientes();
-    schedule.scheduleJob('0 0 * * *', () => { getClientes(); });
+    getFluxoProcedimentos();
+    schedule.scheduleJob('0 0 * * *', () => {
+      getClientes();
+      getFluxoProcedimentos();
+    });
   }, []);
 
   const handleClose = () => {
-    setHasNewBirthDays(false);
+    setHasNewBirthDaysOrNewLatePayments(false);
     setShowBirthDayModal(false);
   };
   const handleShow = () => setShowBirthDayModal(true);
+
+  const handleAlertNumber = () => {
+    const clientsBirthdaysLength = clientesBirthDay.length > 0 ? clientesBirthDay.length : 0;
+    const fluxoProcedimentoAtrasadosLength = fluxoProcedimentoAtrasados.length > 0 ? fluxoProcedimentoAtrasados.length : 0;
+    const totalLength = clientsBirthdaysLength + fluxoProcedimentoAtrasadosLength;
+    return totalLength > 0 ? totalLength : null;
+  };
 
   return (
     <>
@@ -199,8 +235,8 @@ const Header = () => {
               onClick={handleShow}
             >
               <span><BiBell /></span>
-              {hasNewBirthDays
-                && (<span className="badge">{clientesBirthDay.length > 0 ? clientesBirthDay.length : null}</span>)}
+              {hasNewBirthDaysOrNewLatePayments
+                && (<span className="badge">{handleAlertNumber()}</span>)}
             </Button>
           </NavbarDiv>
         </Navbar>
@@ -219,15 +255,30 @@ const Header = () => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+        <DivYellowColor>
+          <h6>Clientes com aniversário hoje ou nos próximos dias:</h6>
+        </DivYellowColor>
           {clientesBirthDay.map((cliente) => (
             <div key={uuidv4()}>
               <>
-                <CentralizedDiv>
-                <h6>Clientes com aniversário hoje ou nos próximos dias</h6>
-                </CentralizedDiv>
                 <DivBreakWord>
-                  <strong>{`${cliente.nome}: `}</strong>
-                  {cliente.dataNascimento}
+                  <strong>cliente:</strong>{` ${cliente.nome} `}
+                  <strong>data de nascimento: </strong>{cliente.dataNascimento}
+                </DivBreakWord>
+              </>
+            </div>
+          ))}
+          <HrAlertDivider />
+          <DivYellowColor>
+            <h6>Clientes com fluxo de procedimentos não marcados como pago há 45 dias ou mais:</h6>
+          </DivYellowColor>
+          {fluxoProcedimentoAtrasados.map((fluxoProcedimento) => (
+            <div key={uuidv4()}>
+              <>
+                <DivBreakWord>
+                  <strong>cliente:</strong>{` ${fluxoProcedimento.cliente} `}
+                  <strong>data:</strong>{` ${moment(fluxoProcedimento.data, "YYYY-MM-DD").format('DD/MM/YYYY')} `}
+                  <strong>total:</strong>{` ${formatterValue(fluxoProcedimento.total)} `}
                 </DivBreakWord>
               </>
             </div>

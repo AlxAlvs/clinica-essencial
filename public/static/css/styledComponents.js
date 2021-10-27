@@ -114,3 +114,11 @@ export const SpanInvalid = styled.span`
     font-size: 80%;
     color: #dc3545;
 `;
+
+export const HrAlertDivider = styled.hr`
+    border: 1px solid lightgray;
+`;
+
+export const DivYellowColor = styled.div`
+    color: #e0f542;
+`;
