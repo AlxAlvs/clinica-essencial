@@ -43,8 +43,6 @@ export default async (req, res) => {
         profissional.id as profissionalIdentification,
         equipamento.nome as equipamentoNome,
         equipamento.id as equipamentoIdentification,
-        produto.nome as produtoNome,
-        produto.id as produtoIdentification,
         procedimento.nome as procedimentoNome,
         procedimento.id as procedimentoIdentification,
         cliente.nome as clienteNome,
@@ -54,8 +52,6 @@ export default async (req, res) => {
         LEFT JOIN profissional ON fluxoProcedimentoProfissional.profissionalId = profissional.id
         LEFT JOIN fluxoProcedimentoEquipamento ON fluxoProcedimentoEquipamento.fluxoProcedimentoId = fluxoProcedimento.Id
         LEFT JOIN equipamento ON fluxoProcedimentoEquipamento.equipamentoId = equipamento.id
-        LEFT JOIN fluxoProcedimentoProduto ON fluxoProcedimentoProduto.fluxoProcedimentoId = fluxoProcedimento.Id
-        LEFT JOIN produto ON fluxoProcedimentoProduto.produtoId = produto.id
         LEFT JOIN fluxoProcedimentoProcedimento ON fluxoProcedimentoProcedimento.fluxoProcedimentoId = fluxoProcedimento.Id
         LEFT JOIN procedimento ON fluxoProcedimentoProcedimento.procedimentoId = procedimento.id
         LEFT JOIN cliente ON fluxoProcedimento.clienteId = cliente.id WHERE fluxoProcedimento.id = ${id};`,

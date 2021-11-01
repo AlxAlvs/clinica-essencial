@@ -66,7 +66,7 @@ const Edit = () => {
     if (data && Array.isArray(data.result) && data.result.length > 0) {
       setObjectToDelete(data.result[0]);
       setShowSuccessAlert(false);
-      if (table === 'cliente' || table === 'produto' || table === 'equipamento' || table === 'profissional' || table === 'procedimento') {
+      if (table === 'cliente' || table === 'equipamento' || table === 'profissional' || table === 'procedimento') {
         checkIfObjectIsAssociated();
       } else {
         setEnableExclusionButton(true);

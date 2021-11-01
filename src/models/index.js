@@ -2,8 +2,10 @@ const models = {};
 
 models.produto = () => [
   { nome: { displayName: 'nome', type: 'string', databaseName: 'nome' } },
-  { valor: { displayName: 'valor (R$)', type: 'monetary', databaseName: 'valor' } },
+  { valor: { displayName: 'valor unitário (R$)', type: 'monetary', databaseName: 'valor' } },
   { data_validade: { displayName: 'data de validade', type: 'date', databaseName: 'data_validade' } },
+  { quantidade: { displayName: 'quantidade', type: 'string', databaseName: 'quantidade' } },
+  { vendidos: { displayName: 'vendidos', type: 'string', databaseName: 'vendidos' } }
 ];
 
 models.equipamento = () => [
@@ -46,7 +48,6 @@ models.fluxoProcedimento = () => [
   { clientes: { displayName: 'cliente', type: 'selectOne', databaseName: 'clientes' } },
   { procedimentos: { displayName: 'procedimentos', type: 'selectMultiple', databaseName: 'procedimentos' } },
   { equipamentos: { displayName: 'equipamentos', type: 'selectMultiple', databaseName: 'equipamentos' } },
-  { produtos: { displayName: 'produtos', type: 'selectMultiple', databaseName: 'produtos' } },
   { profissionais: { displayName: 'profissionais', type: 'selectMultiple', databaseName: 'profissionais' } },
   { valor_profissional: { displayName: 'valor dos profissionais (R$)', type: 'monetary', databaseName: 'valor_profissional' } },
   { data_procedimento: { displayName: 'data do procedimento', type: 'date', databaseName: 'data_procedimento' } },

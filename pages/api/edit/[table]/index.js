@@ -9,7 +9,7 @@ import {
 
 const produtoEdit = async (req, table, res) => {
   const {
-    id, nome, valor, data_validade,
+    id, nome, valor, data_validade, quantidade, vendidos,
   } = await req.body;
 
   const formattedValue = formatMoneyForDatabase(valor);
@@ -21,6 +21,8 @@ const produtoEdit = async (req, table, res) => {
       SET 
       nome = '${nome}', 
       valor = '${formattedValue}', 
+      quantidade = '${quantidade}', 
+      vendidos = '${vendidos}', 
       data_validade = '${formattedDate}'
       WHERE id = ${id}`,
     });
@@ -212,7 +214,7 @@ const procedimentoEdit = async (req, table, res) => {
 
 const fluxoProcedimentoEdit = async (req, table, res) => {
   const {
-    id, cliente, profissionais, equipamentos, produtos, procedimentos, valor_profissional, data_procedimento, descrição, valor_total, pago, forma_pagamento
+    id, cliente, profissionais, equipamentos, procedimentos, valor_profissional, data_procedimento, descrição, valor_total, pago, forma_pagamento
   } = await req.body;
 
   const clientes = await Array.isArray(cliente) ? cliente : [cliente];
@@ -243,10 +245,6 @@ const fluxoProcedimentoEdit = async (req, table, res) => {
       WHERE fluxoProcedimentoEquipamento.fluxoProcedimentoId = ${id}`,
     });
     await executeQuery({
-      query: `DELETE FROM fluxoProcedimentoProduto 
-      WHERE fluxoProcedimentoProduto.fluxoProcedimentoId = ${id}`,
-    });
-    await executeQuery({
       query: `DELETE FROM fluxoProcedimentoProcedimento 
       WHERE fluxoProcedimentoProcedimento.fluxoProcedimentoId = ${id}`,
     });
@@ -262,13 +260,6 @@ const fluxoProcedimentoEdit = async (req, table, res) => {
         query: `INSERT INTO fluxoProcedimentoEquipamento (fluxoProcedimentoId, equipamentoId) 
         VALUES(?, ?)`,
         values: [id, equipamento.value],
-      });
-    });
-    await produtos.forEach((produto) => {
-      executeQuery({
-        query: `INSERT INTO fluxoProcedimentoProduto (fluxoProcedimentoId, produtoId) 
-        VALUES(?, ?)`,
-        values: [id, produto.value],
       });
     });
     await procedimentos.forEach((produto) => {

@@ -52,10 +52,6 @@ export default async (req, res) => {
         WHERE fluxoProcedimentoEquipamento.fluxoProcedimentoId = ${id}`,
       });
       await executeQuery({
-        query: `DELETE FROM fluxoProcedimentoProduto 
-        WHERE fluxoProcedimentoProduto.fluxoProcedimentoId = ${id}`,
-      });
-      await executeQuery({
         query: `DELETE FROM fluxoProcedimentoProcedimento 
         WHERE fluxoProcedimentoProcedimento.fluxoProcedimentoId = ${id}`,
       });

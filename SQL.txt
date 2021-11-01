@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS clinica.produto (
     nome VARCHAR(255) NOT NULL,
     valor VARCHAR(13) NOT NULL,
     data_validade VARCHAR(10),
+    quantidade VARCHAR(10),
+    vendidos VARCHAR(10),
     PRIMARY KEY (id)
 );
 CREATE TABLE IF NOT EXISTS clinica.equipamento (
@@ -85,12 +87,6 @@ CREATE TABLE IF NOT EXISTS clinica.fluxoProcedimentoProcedimento (
 CREATE TABLE IF NOT EXISTS clinica.fluxoProcedimentoEquipamento (
     id INT AUTO_INCREMENT,
 	equipamentoId INT NOT NULL,
-    fluxoProcedimentoId INT NOT NULL,
-    PRIMARY KEY (id)
-);
-CREATE TABLE IF NOT EXISTS clinica.fluxoProcedimentoProduto (
-    id INT AUTO_INCREMENT,
-	produtoId INT NOT NULL,
     fluxoProcedimentoId INT NOT NULL,
     PRIMARY KEY (id)
 );

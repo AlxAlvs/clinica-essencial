@@ -122,3 +122,8 @@ export const HrAlertDivider = styled.hr`
 export const DivYellowColor = styled.div`
     color: #e0f542;
 `;
+
+export const DivCalculo = styled.div`
+    margin-top: 25px;
+    margin-bottom: 200px;
+`;

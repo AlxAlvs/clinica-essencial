@@ -19,6 +19,7 @@ import {
   TdMinimunWidth,
   CentralizedDiv,
   TdMMaximunWidth,
+  DivYellowColor,
 } from '../../../public/static/css/styledComponents';
 import {
   formatterValue,
@@ -144,7 +145,9 @@ const ListTable = ({
 
   const renderTableTitle = () => (
     <CardTitle>
-      {handleTitle(renderTableName(table))}
+        <DivYellowColor>
+          {handleTitle(renderTableName(table))}
+        </DivYellowColor>
     </CardTitle>
   );
 

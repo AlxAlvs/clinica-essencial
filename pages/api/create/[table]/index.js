@@ -9,7 +9,7 @@ import {
 
 const produtoCreate = async (req, table, res) => {
   const {
-    nome, valor, data_validade,
+    nome, valor, data_validade, quantidade, vendidos,
   } = await req.body;
 
   const formattedValue = await formatMoneyForDatabase(valor);
@@ -17,8 +17,8 @@ const produtoCreate = async (req, table, res) => {
 
   try {
     const result = await executeQuery({
-      query: `INSERT INTO ${table} (nome, valor, data_validade) VALUES(?, ?, ?)`,
-      values: [nome, formattedValue, formattedDate],
+      query: `INSERT INTO ${table} (nome, valor, data_validade, quantidade, vendidos) VALUES(?, ?, ?, ?, ?)`,
+      values: [nome, formattedValue, formattedDate, quantidade, vendidos],
     });
     console.log(result);
     const data = {
@@ -182,7 +182,7 @@ const procedimentoCreate = async (req, table, res) => {
 
 const fluxoProcedimentoCreate = async (req, table, res) => {
   const {
-    cliente, profissionais, equipamentos, produtos, procedimentos, valor_profissional, data_procedimento, descrição, valor_total, pago, forma_pagamento
+    cliente, profissionais, equipamentos, procedimentos, valor_profissional, data_procedimento, descrição, valor_total, pago, forma_pagamento
   } = await req.body;
 
   const valorTotalFormatted = await formatMoneyForDatabase(valor_total);
@@ -211,13 +211,6 @@ const fluxoProcedimentoCreate = async (req, table, res) => {
         query: `INSERT INTO fluxoProcedimentoEquipamento (fluxoProcedimentoId, equipamentoId) 
         VALUES(?, ?)`,
         values: [currentId, equipamento.value],
-      });
-    });
-    await produtos.forEach((produto) => {
-      executeQuery({
-        query: `INSERT INTO fluxoProcedimentoProduto (fluxoProcedimentoId, produtoId) 
-        VALUES(?, ?)`,
-        values: [currentId, produto.value],
       });
     });
     await procedimentos.forEach((procedimento) => {

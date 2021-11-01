@@ -21,6 +21,7 @@ import {
   ErrorTextMessage,
   CentralizedDiv,
   SpanInvalid,
+  DivYellowColor,
 } from '../../../public/static/css/styledComponents';
 import getModel from '../../../src/models/index';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -33,6 +34,7 @@ import {
   handleProcedimento,
   handleFluxoProcedimento,
   formatMoneyForDatabase,
+  formatToOnlyNumbersForDatabase
 } from '../../../src/utils/index';
 
 registerLocale('pt-BR', ptBR);
@@ -65,6 +67,8 @@ const Create = ({
     nome: '',
     valor: '',
     data_validade: undefined,
+    quantidade: 1,
+    vendidos: 0,
   };
 
   const [produtoToSave, setProdutoToSave] = useState(produtoInitialState);
@@ -120,7 +124,6 @@ const Create = ({
     procedimentos: [],
     profissionais: [],
     equipamentos: [],
-    produtos: [],
     valor_profissional: '',
     data_procedimento: '',
     descrição: '',
@@ -134,20 +137,20 @@ const Create = ({
   const fluxoProcedimentoFormatToEdit = () => {
     const fluxoProcedimentoFormatted = handleFluxoProcedimento(fluxoProcedimentoToEdit);
     const isPago = Boolean(fluxoProcedimentoFormatted.pago.data[0]);
-    setFluxoProcedimentoToSave({
+    const fluxoProcedimentoUpdated = {
       id: fluxoProcedimentoFormatted.id,
       cliente: fluxoProcedimentoFormatted.cliente,
-      procedimentos: fluxoProcedimentoFormatted.procedimentos,
-      profissionais: fluxoProcedimentoFormatted.profissionais,
-      equipamentos: fluxoProcedimentoFormatted.equipamentos,
-      produtos: fluxoProcedimentoFormatted.produtos,
-      valor_profissional: fluxoProcedimentoFormatted.valor_profissional,
+      procedimentos: fluxoProcedimentoFormatted.procedimentos.length > 0 && fluxoProcedimentoFormatted.procedimentos[0].value ? fluxoProcedimentoFormatted.procedimentos : [],
+      profissionais: fluxoProcedimentoFormatted.profissionais.length > 0 && fluxoProcedimentoFormatted.profissionais[0].value ? fluxoProcedimentoFormatted.profissionais : [],
+      equipamentos: fluxoProcedimentoFormatted.equipamentos.length > 0 && fluxoProcedimentoFormatted.equipamentos[0].value ? fluxoProcedimentoFormatted.equipamentos : [],
+      valor_profissional: formatterValue(fluxoProcedimentoFormatted.valor_profissional),
       data_procedimento: fluxoProcedimentoFormatted.data_procedimento ? moment(fluxoProcedimentoFormatted.data_procedimento, 'YYYY-MM-DD').format('DD MM YYYY') : null,
       descrição: fluxoProcedimentoFormatted.descrição,
-      valor_total: fluxoProcedimentoFormatted.valor_total,
+      valor_total: formatterValue(fluxoProcedimentoFormatted.valor_total),
       pago: isPago,
       forma_pagamento: fluxoProcedimentoFormatted.forma_pagamento,
-    });
+    };
+    setFluxoProcedimentoToSave(fluxoProcedimentoUpdated);
   };
 
   const procedimentoFormatToEdit = () => {
@@ -155,10 +158,10 @@ const Create = ({
     setProcedimentoToSave({
       id: procedimentoFormatted.id,
       nome: procedimentoFormatted.nome,
-      profissionais: procedimentoFormatted.profissionais,
-      equipamentos: procedimentoFormatted.equipamentos,
-      produtos: procedimentoFormatted.produtos,
-      valor: procedimentoFormatted.valor,
+      profissionais: procedimentoFormatted.profissionais.length > 0 && procedimentoFormatted.profissionais[0].value ? procedimentoFormatted.profissionais : [],
+      equipamentos: procedimentoFormatted.equipamentos.length > 0 && procedimentoFormatted.equipamentos[0].value ? procedimentoFormatted.equipamentos : [],
+      produtos: procedimentoFormatted.produtos.length > 0 && procedimentoFormatted.produtos[0].value ? procedimentoFormatted.produtos : [],
+      valor: formatterValue(procedimentoFormatted.valor),
     });
   };
 
@@ -170,6 +173,8 @@ const Create = ({
           nome: produtoToEdit.nome,
           valor: formatterValue(produtoToEdit.valor),
           data_validade: produtoToEdit.data_validade ? moment(produtoToEdit.data_validade, 'YYYY-MM-DD').format('DD MM YYYY') : null,
+          quantidade: produtoToEdit.quantidade ? produtoToEdit.quantidade : 1,
+          vendidos: produtoToEdit.vendidos ? produtoToEdit.vendidos : 0,
         });
         break;
       case 'equipamento':
@@ -204,7 +209,7 @@ const Create = ({
         setSaidaDeCaixaToSave({
           id: saidaDeCaixaToEdit.id,
           descrição: saidaDeCaixaToEdit.descrição,
-          valor: saidaDeCaixaToEdit.valor,
+          valor: formatterValue(saidaDeCaixaToEdit.valor),
           data_pagamento: saidaDeCaixaToEdit.data_pagamento ? moment(saidaDeCaixaToEdit.data_pagamento, 'YYYY-MM-DD').format('DD MM YYYY') : null,
         });
         break;
@@ -387,23 +392,25 @@ const Create = ({
     const title = !isEdit ? `Cadastre ${renderTableName(table)}` : `Edite ${renderTableName(table)}`;
     return (
       <CardTitle>
-        {title}
+        <DivYellowColor>
+          {title}
+        </DivYellowColor>
       </CardTitle>
     );
   };
 
   const calculateTotalValueFluxoProcedimento = () => {
-    const valorTotalProdutos = fluxoProcedimentoToSave.produtos.reduce((sum, nextItem) => sum + parseFloat(nextItem.valor ? nextItem.valor : 0), 0);
-    const valorTotalProcedimentos = fluxoProcedimentoToSave.procedimentos.reduce((sum, nextItem) => sum + parseFloat(nextItem.valor ? nextItem.valor : 0), 0);
-    const valorTotalEquipamentos = fluxoProcedimentoToSave.equipamentos.reduce((sum, nextItem) => sum + parseFloat(nextItem.valor ? nextItem.valor : 0), 0);
+    const valorTotalProcedimentos = fluxoProcedimentoToSave.procedimentos && fluxoProcedimentoToSave.procedimentos.length > 0 ? fluxoProcedimentoToSave.procedimentos.reduce((sum, nextItem) => sum + parseFloat(nextItem.valor ? nextItem.valor : 0), 0) : 0;
+    const valorTotalEquipamentos = fluxoProcedimentoToSave.equipamentos && fluxoProcedimentoToSave.equipamentos.length > 0 ? fluxoProcedimentoToSave.equipamentos.reduce((sum, nextItem) => sum + parseFloat(nextItem.valor ? nextItem.valor : 0), 0) : 0;
     const valorTotalProfissionais = parseFloat(fluxoProcedimentoToSave.valor_profissional ? formatMoneyForDatabase(fluxoProcedimentoToSave.valor_profissional) : 0);
-    const defaultValue = valorTotalProdutos + valorTotalProcedimentos + valorTotalEquipamentos + valorTotalProfissionais;
-    if (defaultValue > 0) {
-      setFluxoProcedimentoToSave({
-        ...fluxoProcedimentoToSave,
-        valor_total: formatterValue(defaultValue.toFixed(2)),
-      });
+    const defaultValue = valorTotalProcedimentos + valorTotalEquipamentos + valorTotalProfissionais;
+    if (fluxoProcedimentoToEdit && fluxoProcedimentoToEdit[0]) {
+      return;
     }
+    setFluxoProcedimentoToSave({
+      ...fluxoProcedimentoToSave,
+      valor_total: formatterValue(defaultValue ? defaultValue.toFixed(2) : 0),
+    });
   };
 
   useEffect(() => {
@@ -414,7 +421,7 @@ const Create = ({
 
   useEffect(() => {
     calculateTotalValueFluxoProcedimento();
-  }, [fluxoProcedimentoToSave.procedimentos, fluxoProcedimentoToSave.equipamentos, fluxoProcedimentoToSave.profissionais, fluxoProcedimentoToSave.produtos, fluxoProcedimentoToSave.valor_profissional]);
+  }, [fluxoProcedimentoToSave.procedimentos, fluxoProcedimentoToSave.equipamentos, fluxoProcedimentoToSave.profissionais, fluxoProcedimentoToSave.valor_profissional]);
 
   const renderFormGroupControlProduto = (displayName) => {
     switch (displayName) {
@@ -452,7 +459,7 @@ const Create = ({
             />
           </>
         );
-      case 'valor (R$)':
+      case 'valor unitário (R$)':
         return (
           <Form.Control
             value={produtoToSave.valor}
@@ -462,6 +469,36 @@ const Create = ({
               setProdutoToSave({
                 ...produtoToSave,
                 valor: e ? formatterValue(e.target.value) : null,
+              });
+            }}
+          />
+        );
+      case 'quantidade':
+        return (
+          <Form.Control
+            value={produtoToSave.quantidade}
+            type="text"
+            maxLength={10}
+            required
+            onChange={(e) => {
+              setProdutoToSave({
+                ...produtoToSave,
+                quantidade: e ? formatToOnlyNumbersForDatabase(e.target.value) : null,
+              });
+            }}
+          />
+        );
+      case 'vendidos':
+        return (
+          <Form.Control
+            value={produtoToSave.vendidos}
+            type="text"
+            maxLength={10}
+            required
+            onChange={(e) => {
+              setProdutoToSave({
+                ...produtoToSave,
+                vendidos: e ? formatToOnlyNumbersForDatabase(e.target.value) : null,
               });
             }}
           />
@@ -872,22 +909,6 @@ const Create = ({
               setFluxoProcedimentoToSave({
                 ...fluxoProcedimentoToSave,
                 equipamentos: e,
-              });
-            }}
-          />
-        );
-      case 'produtos':
-        return (
-          <Select
-            options={produtosList}
-            isMulti
-            placeholder={'Selecione...'}
-            isSearchable
-            value={fluxoProcedimentoToSave.produtos}
-            onChange={(e) => {
-              setFluxoProcedimentoToSave({
-                ...fluxoProcedimentoToSave,
-                produtos: e,
               });
             }}
           />

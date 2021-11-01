@@ -89,9 +89,7 @@ const Header = () => {
     fluxoProcedimentosList.forEach((fluxoProcedimento => {
       if (fluxoProcedimento.data_procedimento) {
         const fluxoProcedimentoDate = moment(fluxoProcedimento.data_procedimento, "YYYY-MM-DD");
-        console.log(fluxoProcedimentoDate.toString());
         const fluxoProcedimentoDatePlus45Days = fluxoProcedimentoDate.add(45, 'days');
-        console.log(fluxoProcedimentoDatePlus45Days.toString());
         const currentDate = moment();
         const isBeforeOrEqual = fluxoProcedimentoDatePlus45Days.isSameOrBefore(currentDate, 'day');
         const isPago = Boolean(fluxoProcedimento.pago.data[0]);
@@ -223,6 +221,11 @@ const Header = () => {
                     <NavDropdown.Item onClick={() => router.push('/listar/fluxoProcedimento')}>
                       <LinkInMenu>
                         Fluxo de procedimento
+                      </LinkInMenu>
+                    </NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => router.push('/caixa')}>
+                      <LinkInMenu>
+                        Caixa
                       </LinkInMenu>
                     </NavDropdown.Item>
                   </NavDropdown>
