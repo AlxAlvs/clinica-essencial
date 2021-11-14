@@ -61,7 +61,8 @@ const Create = ({
   const [produtosList, setProdutosList] = useState([]);
   const [procedimentosList, setProcedimentosList] = useState([]);
   const [clientesList, setClientesList] = useState([]);  
-  const [isFluxoProcedimentoValid, setIsFluxoProcedimentoValid] = useState(true);  
+  const [isFluxoProcedimentoValid, setIsFluxoProcedimentoValid] = useState(true);
+  const [isProdutoValid, setIsProdutoValid] = useState(true); 
 
   const produtoInitialState = {
     nome: '',
@@ -318,6 +319,11 @@ const Create = ({
     }
   };
 
+  const checkVendidosGreaterThanQuantidade = () => {
+    const vendidosValue = Number(produtoToSave.vendidos);
+    return vendidosValue > Number(produtoToSave.quantidade)
+  };
+
   const handleSubmit = async (event) => {
     const form = event.currentTarget;
 
@@ -325,6 +331,14 @@ const Create = ({
       event.preventDefault();
       event.stopPropagation();
       setIsFluxoProcedimentoValid(false);
+      setValidated(true);
+      return;
+    }
+
+    if (table == 'produto' && checkVendidosGreaterThanQuantidade()) {
+      event.preventDefault();
+      event.stopPropagation();
+      setIsProdutoValid(false);
       setValidated(true);
       return;
     }
@@ -490,18 +504,21 @@ const Create = ({
         );
       case 'vendidos':
         return (
-          <Form.Control
-            value={produtoToSave.vendidos}
-            type="text"
-            maxLength={10}
-            required
-            onChange={(e) => {
-              setProdutoToSave({
-                ...produtoToSave,
-                vendidos: e ? formatToOnlyNumbersForDatabase(e.target.value) : null,
-              });
-            }}
-          />
+          <>
+            <Form.Control
+              value={produtoToSave.vendidos}
+              type="text"
+              maxLength={10}
+              required
+              onChange={(e) => {
+                setProdutoToSave({
+                  ...produtoToSave,
+                  vendidos: e ? formatToOnlyNumbersForDatabase(e.target.value) : null,
+                });
+              }}
+            />
+            {isProdutoValid ? null : <SpanInvalid > vendidos não pode ser maior do que a quantidade </SpanInvalid>}
+          </>
         );
       default:
         return <div />;
@@ -1044,9 +1061,7 @@ const Create = ({
   };
 
   const redirectToList = () => {
-    if (isEdit) {
-      router.push(`/listar/${table}`);
-    }
+    router.push(`/listar/${table}`);
   };
 
   const renderFormGroup = () => (

@@ -128,7 +128,7 @@ const Caixa = () => {
 
   const CalcSumOfSaidas = (saidasDeCaixa) => {
     const sumOfSaidas = saidasDeCaixa.reduce((sum, nextItem) => sum + parseFloat(nextItem.valor ? nextItem.valor : 0), 0);
-    setSumOfSaidasDeCaixa(sumOfSaidas);
+    setSumOfSaidasDeCaixa(sumOfSaidas ? sumOfSaidas.toFixed(2): 0);
   };
 
   const CalcSumOfProdutosVendidos = (filteredProdutos) => {
