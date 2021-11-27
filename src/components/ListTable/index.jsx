@@ -20,6 +20,7 @@ import {
   CentralizedDiv,
   TdMMaximunWidth,
   DivYellowColor,
+  DivTableFluxo,
 } from '../../../public/static/css/styledComponents';
 import {
   formatterValue,
@@ -171,10 +172,14 @@ const ListTable = ({
                       </Button>
                     </InsertBtnDiv>
                   </Row>
-                  <Table striped bordered hover variant="dark">
-                    {renderTableHeader()}
-                    {renderTableBody()}
-                  </Table>
+                  <Row>
+                    <Col span={10} offset={1}>
+                      <Table striped bordered hover variant="dark" responsive>
+                        {renderTableHeader()}
+                        {renderTableBody()}
+                      </Table>
+                    </Col>
+                  </Row>
                 </Card.Body>
               </Card>
             ) : (

@@ -96,7 +96,7 @@ export const ErrorTextMessage = styled.div`
 `;
 
 export const TdMinimunWidth = styled.td`
-    width: 15%;
+    width: 10%;
 `;
 
 export const TdMMaximunWidth = styled.td`
