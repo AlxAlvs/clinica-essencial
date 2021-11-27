@@ -143,6 +143,8 @@ const Caixa = () => {
     const total = entradas - saidas;
     if (total && total.toString().charAt(0) == '-') {
       setIsTotalNegative(true);
+    } else {
+      setIsTotalNegative(false);
     }
     setSumOfAllEntradasSubtractSaidas(total ? total.toFixed(2) : 0);
   };
@@ -241,7 +243,7 @@ const Caixa = () => {
                             saidasDeCaixaToList.map((saidaDeCaixa) => (
                                 <tr key={uuidv4()}>
                                     <td>{saidaDeCaixa.descrição}</td>
-                                    <td>{moment(saidaDeCaixa.data_pagamento, 'YYYY-MM-DD').format('DD MM YYYY')}</td>
+                                    <td>{saidaDeCaixa.data_pagamento ? moment(saidaDeCaixa.data_pagamento, 'YYYY-MM-DD').format('DD MM YYYY') : null}</td>
                                     <td>{formatterValue(saidaDeCaixa.valor)}</td>
                                 </tr>
                             ))
