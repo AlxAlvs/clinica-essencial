@@ -33,6 +33,7 @@ const Caixa = () => {
   const [sumOfAllEntradas, setSumOfAllEntradas] = useState(0);
   const [produtosToList, setProdutosToList] = useState([]);
   const [sumOfProdutosvendidos, setSumOfProdutosvendidos] = useState(0);
+  const [isTotalNegative, setIsTotalNegative] = useState(false);
   
   const { data, error } = useSWR(`/api/getAll/fluxoProcedimento`, fetcher);
 
@@ -140,6 +141,9 @@ const Caixa = () => {
     const entradas = parseFloat(sumOfAllEntradas);
     const saidas = parseFloat(sumOfSaidasDeCaixa);
     const total = entradas - saidas;
+    if (total && total.toString().charAt(0) == '-') {
+      setIsTotalNegative(true);
+    }
     setSumOfAllEntradasSubtractSaidas(total ? total.toFixed(2) : 0);
   };
 
@@ -375,7 +379,7 @@ const Caixa = () => {
                               <tbody>
                                   <td>{formatterValue(sumOfSaidasDeCaixa)}</td>
                                   <td>{formatterValue(sumOfAllEntradas)}</td>
-                                  <td>{formatterValue(sumOfAllEntradasSubtractSaidas)}</td>
+                                  <td>{isTotalNegative ? `- ${formatterValue(sumOfAllEntradasSubtractSaidas)}` : formatterValue(sumOfAllEntradasSubtractSaidas)}</td>
                               </tbody>
                           </Table>
                       </CentralizedDiv>
